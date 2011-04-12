@@ -6,6 +6,8 @@
 	</meta>
 	<data type="array">
 		<languageKey index="default" type="array">
+		    <label index="tx_yag_domain_model_category">Category</label>
+		
 			<label index="tx_yag_domain_model_album">Album</label>
 			<label index="tx_yag_domain_model_album.name">Name</label>
 			<label index="tx_yag_domain_model_album.description">Description</label>

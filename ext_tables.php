@@ -87,6 +87,29 @@ $TCA['tt_content']['types']['list']['subtypes_addlist'][$_EXTKEY . '_pi1'] = 'pi
 /**
  * TCA Configuration
  */
+t3lib_extMgm::addLLrefForTCAdescr('tx_yag_domain_model_category', 'EXT:yag/Resources/Private/Language/locallang_csh_tx_yag_domain_model_category.xml');
+t3lib_extMgm::allowTableOnStandardPages('tx_yag_domain_model_category');
+$TCA['tx_yag_domain_model_category'] = array (
+    'ctrl' => array (
+        'title'             => 'LLL:EXT:yag/Resources/Private/Language/locallang_db.xml:tx_yag_domain_model_category',
+        'label'             => 'name',
+        'tstamp'            => 'tstamp',
+        'crdate'            => 'crdate',
+        'versioningWS'      => 2,
+        'versioning_followPages'    => TRUE,
+        'origUid'           => 't3_origuid',
+        'languageField'     => 'sys_language_uid',
+        'transOrigPointerField'     => 'l18n_parent',
+        'transOrigDiffSourceField'  => 'l18n_diffsource',
+        'delete'            => 'deleted',
+        'enablecolumns'     => array(
+            'disabled' => 'hidden'
+            ),
+        'dynamicConfigFile' => t3lib_extMgm::extPath($_EXTKEY) . 'Configuration/TCA/Category.php',
+        'iconfile'          => t3lib_extMgm::extRelPath($_EXTKEY) . 'Resources/Public/Icons/tx_yag_domain_model_category.gif'
+    )
+);
+
 t3lib_extMgm::addLLrefForTCAdescr('tx_yag_domain_model_album', 'EXT:yag/Resources/Private/Language/locallang_csh_tx_yag_domain_model_album.xml');
 t3lib_extMgm::allowTableOnStandardPages('tx_yag_domain_model_album');
 $TCA['tx_yag_domain_model_album'] = array (
