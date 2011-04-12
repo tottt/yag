@@ -24,14 +24,12 @@
 ***************************************************************/
 
 /**
- * Repository for Tx_Yag_Domain_Model_Gallery
+ * Repository for Tx_Yag_Domain_Model_Category
  *
  * @package Domain
  * @subpackage Repository
  * @author Michael Knoll <mimi@kaktusteam.de>
  */
-class Tx_Yag_Domain_Repository_GalleryRepository extends Tx_Yag_Domain_Repository_AbstractRepository {
-	
+class Tx_Yag_Domain_Repository_CategoryRepository extends Tx_Yag_Domain_Repository_AbstractRepository {
 }
-
 ?>
