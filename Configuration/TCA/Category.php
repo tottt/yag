@@ -98,6 +98,15 @@ $TCA['tx_yag_domain_model_category'] = array(
                 'eval' => 'int'
             ),
         ),
+        'root' => array(
+            'exclude'   => 0,
+            'label'     => 'right',
+            'config'    => array(
+                'type' => 'input',
+                'size' => 4,
+                'eval' => 'int'
+            ),
+        ),
     )
 );
 
