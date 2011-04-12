@@ -2,10 +2,10 @@ CREATE TABLE tx_yag_domain_model_category (
     uid int(11) NOT NULL auto_increment,
     pid int(11) DEFAULT '0' NOT NULL,
     
-    name  VARCHAR(50) DEFAULT ''  NOT NULL,
+    name  tinytext,
     description text,
-    lft   INT(12) DEFAULT '0' NOT NULL,
-    rgt   INT(12) DEFAULT '0' NOT NULL,
+    lft   int(11) DEFAULT '0' NOT NULL,
+    rgt   int(11) DEFAULT '0' NOT NULL,
 
     tstamp int(11) unsigned DEFAULT '0' NOT NULL,
     crdate int(11) unsigned DEFAULT '0' NOT NULL,
@@ -28,8 +28,8 @@ CREATE TABLE tx_yag_domain_model_category (
 
     PRIMARY KEY (uid),
     KEY parent (pid),
-    key lft (lft),
-    key rgt (rgt)
+    KEY lft (lft),
+    KEY rgt (rgt)
 );
 
 CREATE TABLE tx_yag_domain_model_album (
