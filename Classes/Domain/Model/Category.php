@@ -80,6 +80,24 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     
     
     /**
+     * Holds refernce to parent category (null, if root)
+     *
+     * @var Tx_Yag_Domain_Model_Category
+     */
+    protected $parent;
+    
+    
+    
+    /**
+     * Holds references to child categories
+     *
+     * @var Tx_Extbase_Persistence_ObjectStorage<Tx_Yag_Domain_Model_Category>
+     */
+    protected $children;
+    
+    
+    
+    /**
      * The constructor.
      *
      * @return void
@@ -87,6 +105,10 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     public function __construct() {
         //Do not remove the next line: It would break the functionality
         $this->initStorageObjects();
+        
+        // We initialize lft and rgt as those values will be overwritten later, if this is not the root node
+        $this->lft = 1;
+        $this->rgt = 2;
     }
 
     
@@ -97,7 +119,7 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      * @return void
      */
     protected function initStorageObjects() {
-
+        $this->children = new Tx_Extbase_Persistence_ObjectStorage();
     }
     
     
@@ -164,7 +186,7 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      *
      * @param int $root
      */
-    public function setRoot($root) {
+    public function setRoot(Tx_Yag_Domain_Model_Category $root) {
     	$this->root = $root;
     }
     
@@ -208,10 +230,160 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      *
      * @param int $lft
      */
-    public function setlft($lft) {
+    public function setLft($lft) {
     	$this->lft = $lft;
     }
-	
+    
+    
+    
+    /**
+     * Setter for parent category
+     *
+     * @param Tx_Yag_Domain_Model_Category $category
+     */
+    public function setParent(Tx_Yag_Domain_Model_Category $category) {
+    	$this->parent = $category;
+    	$category->addChild($this);
+    	$category->updateLeftRight();
+    }
+    
+    
+    
+    /**
+     * Getter for parent category
+     *
+     * @return Tx_Yag_Domain_Model_Category
+     */
+    public function getParent() {
+    	return $this->parent;	
+    }
+    
+    
+    
+    /**
+     * Adds a child category to children at end of children
+     *
+     * @param Tx_Yag_Domain_Model_Category $category
+     */
+    public function addChild(Tx_Yag_Domain_Model_Category $category) {
+    	$this->children->attach($category);
+    	$this->updateLeftRight();
+    }
+    
+    
+    
+    /**
+     * Adds a new child category after a given child category
+     *
+     * @param Tx_Yag_Domain_Model_Category $newChildCategory
+     * @param Tx_Yag_Domain_Model_Category $categoryToAddAfter
+     */
+    public function addChildAfter(Tx_Yag_Domain_Model_Category $newChildCategory, Tx_Yag_Domain_Model_Category $categoryToAddAfter) {
+    	$newChildren = new Tx_Extbase_Persistence_ObjectStorage();
+    	foreach ($this->children as $child) {
+    		$newChildren->attach($child);
+    		if ($child->getId() == $categoryToAddAfter->getId()) {
+    			$newChildren->add($newChildCategory);
+    		}
+    	}
+    	$this->children = $newChildren;
+    	$this->updateLeftRight();
+    }
+    
+    
+    
+    /**
+     * Adds a new child category before a given child category
+     *
+     * @param Tx_Yag_Domain_Model_Category $newChildCategory
+     * @param Tx_Yag_Domain_Model_Category $categoryToAddBefore
+     */
+    public function addChildBefore(Tx_Yag_Domain_Model_Category $newChildCategory, Tx_Yag_Domain_Model_Category $categoryToAddBefore) {
+    	$newChildren = Tx_Extbase_Persistence_ObjectStorage();
+    	foreach($this->children as $child) {
+    		if ($child->getId() == $categoryToAddBefore->getId()) {
+    			$newChildren->attach($newChildCategory);
+    		}
+    		$newChildren->add($child);
+    	}
+    	$this->children = $newChildren;
+    	$this->updateLeftRight();
+    }
+    
+    
+    
+    /**
+     * Removes given child category
+     *
+     * @param Tx_Yag_Domain_Model_Category $child
+     */
+    public function removeChild(Tx_Yag_Domain_Model_Category $child) {
+    	$this->children->remove($child);
+    	$this->updateLeftRight(); 
+    }
+    
+    
+    
+    /**
+     * Getter for child categories
+     *
+     * @return Tx_Extbase_Persistence_ObjectStorage
+     */
+    public function getChildren() {
+    	return $this->children;
+    }
+    
+    
+    
+    /**
+     * Updates lft and rgt of this category and its sub-categories
+     *
+     * @param int $left
+     * @return int Next left value after updating this node
+     */
+    protected function updateLeftRight($left = 0) {
+    	if ($left == 0) {
+    		$left = $this->lft;
+    	} else {
+    		$this->lft = $left;
+    	}
+    	$left++;
+    	if ($this->hasChildren()) {
+	    	foreach ($this->children as $childNode) {
+	    		$left = $childNode->updateLeftRight($left);
+	    	}
+    	}
+    	$this->rgt = $left;
+    	return ++$left;
+    }
+    
+    
+    
+    /**
+     * Returns true, if category has children
+     *
+     * @return bool
+     */
+    public function hasChildren() {
+    	return $this->getChildrenCount() > 0;
+    }
+    
+    
+    
+    /**
+     * Get count of children recursively
+     *
+     * @return int
+     */
+    public function getChildrenCount() {
+    	$count = 0;
+    	foreach ($this->children as $child) {
+    		$count++;
+    		$count += $child->getChildrenCount();
+    	}
+    	return $count;
+    }
+    
 }
 
 ?>

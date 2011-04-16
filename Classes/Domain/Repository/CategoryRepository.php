@@ -31,6 +31,36 @@
  * @author Michael Knoll <mimi@kaktusteam.de>
  */
 class Tx_Yag_Domain_Repository_CategoryRepository extends Tx_Yag_Domain_Repository_AbstractRepository {
+
+	/**
+	 * Add root category
+	 *
+	 * @param Tx_Yag_Domain_Model_Category $category
+	 */
+	public function addRoot(Tx_Yag_Domain_Model_Category $category) {
+		// set left and right for root
+		$category->setLft(1);
+		$category->setRgt(2);
+		$this->add($category);
+	}
+	
+	
+	
+	public function add(Tx_Yag_Domain_Model_Category $category) {
+		parent::add($category);
+	}
+	
+	
+	
+	public function remove() {
+		
+	}
+	
+	
+	
+	public function update() {
+		
+	}
 	
 }
 
