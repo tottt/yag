@@ -95,6 +95,20 @@ class Tx_Yag_Tests_Domain_Model_CategoryTest extends Tx_Yag_Tests_BaseTestCase {
 	
 	
 	/** @test */
+	public function removeChildUpdatesLeftToRight() {
+		$parentCategory = new Tx_Yag_Domain_Model_Category();
+        $childCategory = new Tx_Yag_Domain_Model_Category();
+        $parentCategory->addChild($childCategory);
+        $this->assertEquals(array(1,2,3,4), array($parentCategory->getLft(), $childCategory->getLft(), $childCategory->getRgt(), $parentCategory->getRgt()));
+        
+        $parentCategory->removeChild($childCategory);
+        $this->assertEquals(1, $parentCategory->getLft());
+        $this->assertEquals(2, $parentCategory->getRgt());
+	}
+	
+	
+	
+	/** @test */
 	public function getChildCountReturnsOneForOneAddedChild() {
 		$parentCategory = new Tx_Yag_Domain_Model_Category();
         $childCategory1 = new Tx_Yag_Domain_Model_Category();

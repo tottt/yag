@@ -318,7 +318,7 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      * @param Tx_Yag_Domain_Model_Category $child
      */
     public function removeChild(Tx_Yag_Domain_Model_Category $child) {
-    	$this->children->remove($child);
+    	$this->children->detach($child);
     	$this->updateLeftRight(); 
     }
     
