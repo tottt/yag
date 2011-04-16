@@ -156,6 +156,20 @@ class Tx_Yag_Tests_Domain_Model_CategoryTest extends Tx_Yag_Tests_BaseTestCase {
 		$this->assertEquals(false, $parentCategory->hasChildren());
 	}
 	
+	
+	
+    /** @test */
+    public function getLevelReturnsTwoIfChildOfChild() {
+        $parentCategory = new Tx_Yag_Domain_Model_Category();
+        $childCategory1 = new Tx_Yag_Domain_Model_Category();
+        $childCategory2 = new Tx_Yag_Domain_Model_Category();
+        
+        $childCategory1->addChild($childCategory2);
+        $parentCategory->addChild($childCategory1);
+        
+        $this->assertEquals(2, $childCategory2->getLevel());
+    }
+	
 }
 
 ?>

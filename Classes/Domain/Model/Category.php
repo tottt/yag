@@ -243,7 +243,7 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      */
     public function setParent(Tx_Yag_Domain_Model_Category $category) {
     	$this->parent = $category;
-    	$category->addChild($this);
+    	$category->children->attach($this);
     	$category->updateLeftRight();
     }
     
@@ -267,6 +267,7 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      */
     public function addChild(Tx_Yag_Domain_Model_Category $category) {
     	$this->children->attach($category);
+    	$category->parent = $this;
     	$this->updateLeftRight();
     }
     
@@ -382,6 +383,21 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     		$count += $child->getChildrenCount();
     	}
     	return $count;
+    }
+    
+    
+    
+    /**
+     * Returns level of category (0 if category is root)
+     *
+     * @return int
+     */
+    public function getLevel() {
+    	if ($this->parent == null) {
+    		return 0;
+    	} else {
+    		return 1 + $this->parent->getLevel();
+    	}
     }
     
 }
