@@ -41,6 +41,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTest extends Tx_Yag_Tests_BaseTestCase {
 	}
 	
 	
+	
     /** @test */
 	public function addChildCategoryUpdatesLeftRight() {
 		$parentCategory = new Tx_Yag_Domain_Model_Category();
@@ -89,6 +90,56 @@ class Tx_Yag_Tests_Domain_Model_CategoryTest extends Tx_Yag_Tests_BaseTestCase {
                   $childCategory2->getRgt(),
                   $childCategory1->getRgt(),
                   $parentCategory->getRgt()));
+	}
+	
+	
+	
+	/** @test */
+	public function getChildCountReturnsOneForOneAddedChild() {
+		$parentCategory = new Tx_Yag_Domain_Model_Category();
+        $childCategory1 = new Tx_Yag_Domain_Model_Category();
+        $parentCategory->addChild($childCategory1);
+        $this->assertEquals(1, $parentCategory->getChildrenCount());
+	}
+	
+	
+	
+	/** @test */
+	public function getChildCountReturnsTwoForTwoAddedChildren() {
+	    $parentCategory = new Tx_Yag_Domain_Model_Category();
+        $childCategory1 = new Tx_Yag_Domain_Model_Category();
+        $childCategory2 = new Tx_Yag_Domain_Model_Category();
+        
+        $childCategory1->addChild($childCategory2);
+        $parentCategory->addChild($childCategory1);
+        
+        $this->assertEquals(2, $parentCategory->getChildrenCount());
+	}
+	
+	
+	
+	/** @test */
+	public function getChildCountReturnsZeroIfThereAreNoChildren() {
+		$parentCategory = new Tx_Yag_Domain_Model_Category();
+		$this->assertEquals(0, $parentCategory->getChildrenCount());
+	}
+	
+	
+	
+	/** @test */
+	public function hasChildrenReturnsTrueIfCategoryHasChildren() {
+		$parentCategory = new Tx_Yag_Domain_Model_Category();
+		$childCategory1 = new Tx_Yag_Domain_Model_Category();
+		$parentCategory->addChild($childCategory1);
+		$this->assertEquals(true, $parentCategory->hasChildren());
+	}
+	
+	
+	
+	/** @test */
+	public function hasChildrenReturnsFalseIfCategoryHasNoChildren() {
+		$parentCategory = new Tx_Yag_Domain_Model_Category();
+		$this->assertEquals(false, $parentCategory->hasChildren());
 	}
 	
 }
