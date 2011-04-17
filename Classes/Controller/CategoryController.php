@@ -48,7 +48,6 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	protected function postInitializeAction() {
 		$this->categoryRepository = t3lib_div::makeInstance('Tx_Yag_Domain_Repository_CategoryRepository');
 	}
-
 	
 	
 	/**
