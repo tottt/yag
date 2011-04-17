@@ -240,11 +240,12 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      * Setter for parent category
      *
      * @param Tx_Yag_Domain_Model_Category $category
+     * @param bool $updateLeftRight
      */
-    public function setParent(Tx_Yag_Domain_Model_Category $category) {
+    public function setParent(Tx_Yag_Domain_Model_Category $category, $updateLeftRight = true) {
     	$this->parent = $category;
     	$category->children->attach($this);
-    	$category->updateLeftRight();
+    	if ($updateLeftRight) $category->updateLeftRight();
     }
     
     
@@ -264,11 +265,13 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      * Adds a child category to children at end of children
      *
      * @param Tx_Yag_Domain_Model_Category $category
+     * @param bool $updateLeftRight
      */
-    public function addChild(Tx_Yag_Domain_Model_Category $category) {
+    public function addChild(Tx_Yag_Domain_Model_Category $category, $updateLeftRight = true) {
+    	if ($this->children == null) $this->children = new Tx_Extbase_Persistence_ObjectStorage();
     	$this->children->attach($category);
     	$category->parent = $this;
-    	$this->updateLeftRight();
+    	if ($updateLeftRight) $this->updateLeftRight();
     }
     
     
@@ -278,8 +281,9 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      *
      * @param Tx_Yag_Domain_Model_Category $newChildCategory
      * @param Tx_Yag_Domain_Model_Category $categoryToAddAfter
+     * @param bool $updateLeftRight
      */
-    public function addChildAfter(Tx_Yag_Domain_Model_Category $newChildCategory, Tx_Yag_Domain_Model_Category $categoryToAddAfter) {
+    public function addChildAfter(Tx_Yag_Domain_Model_Category $newChildCategory, Tx_Yag_Domain_Model_Category $categoryToAddAfter, $updateLeftRight = true) {
     	$newChildren = new Tx_Extbase_Persistence_ObjectStorage();
     	foreach ($this->children as $child) {
     		$newChildren->attach($child);
@@ -288,7 +292,7 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     		}
     	}
     	$this->children = $newChildren;
-    	$this->updateLeftRight();
+    	if ($updateLeftRight) $this->updateLeftRight();
     }
     
     
@@ -298,8 +302,9 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      *
      * @param Tx_Yag_Domain_Model_Category $newChildCategory
      * @param Tx_Yag_Domain_Model_Category $categoryToAddBefore
+     * @param bool $updateLeftRight
      */
-    public function addChildBefore(Tx_Yag_Domain_Model_Category $newChildCategory, Tx_Yag_Domain_Model_Category $categoryToAddBefore) {
+    public function addChildBefore(Tx_Yag_Domain_Model_Category $newChildCategory, Tx_Yag_Domain_Model_Category $categoryToAddBefore, $updateLeftRight = true) {
     	$newChildren = Tx_Extbase_Persistence_ObjectStorage();
     	foreach($this->children as $child) {
     		if ($child->getId() == $categoryToAddBefore->getId()) {
@@ -308,7 +313,7 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     		$newChildren->add($child);
     	}
     	$this->children = $newChildren;
-    	$this->updateLeftRight();
+    	if ($updateLeftRight) $this->updateLeftRight();
     }
     
     
@@ -317,10 +322,11 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      * Removes given child category
      *
      * @param Tx_Yag_Domain_Model_Category $child
+     * @param bool $updateLeftRight
      */
-    public function removeChild(Tx_Yag_Domain_Model_Category $child) {
+    public function removeChild(Tx_Yag_Domain_Model_Category $child, $updateLeftRight = true) {
     	$this->children->detach($child);
-    	$this->updateLeftRight(); 
+    	if ($updateLeftRight) $this->updateLeftRight(); 
     }
     
     
@@ -398,6 +404,24 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     	} else {
     		return 1 + $this->parent->getLevel();
     	}
+    }
+    
+    
+    
+    /**
+     * Returns sub-categories in a flat list
+     *
+     * @return Tx_Extbase_Persistence_ObjectStorage
+     */
+    public function getSubCategories() {
+    	$subCategories = new Tx_Extbase_Persistence_ObjectStorage();
+    	if ($this->children->count() > 0) {
+    	   foreach ($this->children as $child) {
+    	   	   $subCategories->attach($child);
+    	   	   $subCategories->addAll($child->getSubCategories());
+    	   }
+    	}
+    	return $subCategories;
     }
     
 }

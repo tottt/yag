@@ -33,33 +33,90 @@
 class Tx_Yag_Domain_Repository_CategoryRepository extends Tx_Yag_Domain_Repository_AbstractRepository {
 
 	/**
-	 * Add root category
+	 * Adds a category (and all sub categories) to repository
 	 *
 	 * @param Tx_Yag_Domain_Model_Category $category
 	 */
-	public function addRoot(Tx_Yag_Domain_Model_Category $category) {
-		// set left and right for root
-		$category->setLft(1);
-		$category->setRgt(2);
-		$this->add($category);
-	}
-	
-	
-	
-	public function add(Tx_Yag_Domain_Model_Category $category) {
-		parent::add($category);
-	}
-	
-	
-	
-	public function remove() {
+	public function add($category) {
+		$categoriesToAdd = new Tx_Extbase_Persistence_ObjectStorage();
+		$categoriesToAdd->attach($category);
+		$categoriesToAdd->addAll($category->getSubCategories());
 		
+		foreach($categoriesToAdd as $categoryToPersist) {
+			if ($categoryToPersist->_isNew()) {
+				parent::add($categoryToPersist); 
+			} else {
+				parent::update($categoryToPersist);
+			}
+		}
 	}
 	
 	
 	
-	public function update() {
-		
+	/**
+	 * Returns a category (and its sub-categories) for a given category uid
+	 *
+	 * @param int $uid
+	 */
+	public function findByUid($uid) {
+		$rootCategory = parent::findByUid($uid);
+		$childCategories = new Tx_Extbase_Persistence_ObjectStorage();
+		foreach($this->findChildCategoriesByRootCategory($rootCategory) as $childCategory) {
+			$childCategories->attach($childCategory);
+		}
+        $this->buildUpCategoryTree($rootCategory, $childCategories);
+        return $rootCategory;
+	}
+	
+	
+	
+	/**
+	 * We build up a category tree recursively.
+	 *
+	 * @param Tx_Yag_Domain_Model_Category $root
+	 * @param Tx_Extbase_Persistence_ObjectStorage $children
+	 * @return unknown
+	 */
+	protected function buildUpCategoryTree(Tx_Yag_Domain_Model_Category $root, $children) {
+		foreach ($children as $child) { /* @var $child Tx_Yag_Domain_Model_Category */
+			#print_r("processing root " . $root->getName() . " lft: {$root->getLft()} - rgt: {$root->getRgt()} with child " . $child->getName() . " lft: {$child->getLft()} - rgt: {$child->getRgt()} <br>"); 
+			if ($child->getRgt() < $root->getRgt()) {
+				/* Current child must be child of current root - so we add it */
+                $root->addChild($child, false);
+                $children->detach($child);
+                if ($child->getLft() + 1 == $child->getRgt()) {
+                	/* Current child is a leaf. So we added it to root as a child and go on with possible next child */
+                	$this->buildUpCategoryTree($root, $children);
+                } else {
+                	/* Current child is not a leaf. So we added it to root as a child and move down the tree */
+                	$this->buildUpCategoryTree($child, $children); 
+                }
+			} else {
+				/* Current child does not belong to current root. So we move up the tree */
+				$this->buildUpCategoryTree($root->getParent(), $children);    
+			}
+		}
+	}
+	
+	
+	
+	/**
+	 * Returns a flat list of child categories for a given category
+	 *
+	 * @param Tx_Yag_Domain_Model_Category $rootCategory
+	 * @return Tx_Extbase_Persistence_ObjectStorage
+	 */
+	public function findChildCategoriesByRootCategory(Tx_Yag_Domain_Model_Category $rootCategory) {
+		$query = $this->createQuery();
+		$query->matching(
+		    $query->logicalAnd(
+		        $query->logicalAnd(
+		            $query->greaterThan('lft', $rootCategory->getLft()),$query->lessThan('rgt', $rootCategory->getRgt())),
+		            $query->equals('root', $rootCategory->getRoot())
+		        )
+		    );
+		$query->setOrderings(array('lft' => Tx_Extbase_Persistence_Query::ORDER_ASCENDING));
+		return $query->execute()->toArray();
 	}
 	
 }

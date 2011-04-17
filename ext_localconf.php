@@ -55,6 +55,7 @@ Tx_Extbase_Utility_Extension::configurePlugin(
 	    'Setup' => 'index, setupRbac,truncateTables',
 	    'AdminMenu' => 'index',
 	    'Error' => 'index',
+	    'Category' => 'show'
 	),
 	array(
         'Album' => 'new, create, edit, update, delete, addItems',
