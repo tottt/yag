@@ -65,5 +65,40 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 		}
 		*/
 	}
+	
+	
+	public function getSubTreeAsJSONAction() {
+		$this->returnDataAndShutDown(
+			"[{
+        id: 1,
+        text: 'A leaf Node',
+        leaf: true
+    },{
+        id: 2,
+        text: 'A folder Node',
+        children: [{
+            id: 3,
+            text: 'A child Node',
+            leaf: true
+        }]
+   }]"
+		);
+	}
+	
+	
+	
+	/**
+	 * Return data to the client and shudown  
+	 * TODO: refactor this to a real javascript-and-nothing-else module?
+	 * 
+	 * @param string $content
+	 */
+	protected function returnDataAndShutDown($content = 'OK') {
+		$this->persistenceManager->persistAll();
+		$this->lifecycleManager->updateState(Tx_PtExtlist_Domain_Lifecycle_LifecycleManager::END);
+        ob_clean();
+        echo $content;
+        exit();
+	}
 }
 ?>

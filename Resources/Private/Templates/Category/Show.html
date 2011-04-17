@@ -21,10 +21,10 @@ Here is a list of objects / variables that can be accessed in this template:
 	<script type="text/javascript">
 
 
-		Ext.app.YAG_API = {"url":"php\/router.php","type":"remoting","actions":{"TestAction":[{"name":"doEcho","len":1},{"name":"multiply","len":1},{"name":"getTree","len":1}],"Profile":[{"name":"getBasicInfo","len":2},{"name":"getPhoneInfo","len":1},{"name":"getLocationInfo","len":1},{"name":"updateBasicInfo","len":2,"formHandler":true}]}};
+		Ext.app.YAG_CategoryAPI = {"url":"php\/router.php","type":"remoting","actions":{"TestAction":[{"name":"doEcho","len":1},{"name":"multiply","len":1},{"name":"getSubTree","len":1}],"Profile":[{"name":"getBasicInfo","len":2},{"name":"getPhoneInfo","len":1},{"name":"getLocationInfo","len":1},{"name":"updateBasicInfo","len":2,"formHandler":true}]}};
 		
 		Ext.onReady(function(){
-		    Ext.Direct.addProvider(Ext.app.YAG_API);
+		    Ext.Direct.addProvider(Ext.app.YAG_CategoryAPI);
 
 		    var tree = new Ext.tree.TreePanel({
 		        width: 400,
@@ -36,7 +36,7 @@ Here is a list of objects / variables that can be accessed in this template:
 		            text: 'Root'
 		        },
 		        loader: new Ext.tree.TreeLoader({
-		            directFn: TestAction.getTree
+		            directFn: TestAction.getSubTree
 		        }),
 		        fbar: [{
 		            text: 'Reload root',
