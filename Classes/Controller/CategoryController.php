@@ -54,6 +54,7 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 * TODO test method
 	 */
 	public function showAction() {
+		/*
 		$rootCategory = $this->categoryRepository->findByUid(1);
 		echo $rootCategory->getName() . '<br>';
 		foreach($rootCategory->getChildren() as $child) {
@@ -62,6 +63,7 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 				echo "--" . $subchild->getName() . '<br>';
 			}
 		}
+		*/
 	}
 }
 ?>

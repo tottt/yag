@@ -16,8 +16,45 @@ Here is a list of objects / variables that can be accessed in this template:
 
 <f:layout name="Default" />
 <f:section name="main">
+	<script src="../typo3temp/compressor/Ext.ux.state.TreePanel-e320d698880ec0c6e427b7c382a59af4.js?1302732193" type="text/javascript"></script>
+
+	<script type="text/javascript">
+
+
+		Ext.app.YAG_API = {"url":"php\/router.php","type":"remoting","actions":{"TestAction":[{"name":"doEcho","len":1},{"name":"multiply","len":1},{"name":"getTree","len":1}],"Profile":[{"name":"getBasicInfo","len":2},{"name":"getPhoneInfo","len":1},{"name":"getLocationInfo","len":1},{"name":"updateBasicInfo","len":2,"formHandler":true}]}};
+		
+		Ext.onReady(function(){
+		    Ext.Direct.addProvider(Ext.app.YAG_API);
+
+		    var tree = new Ext.tree.TreePanel({
+		        width: 400,
+		        height: 400,
+		        autoScroll: true,
+		        renderTo: document.body,
+		        root: {
+		            id: 'root',
+		            text: 'Root'
+		        },
+		        loader: new Ext.tree.TreeLoader({
+		            directFn: TestAction.getTree
+		        }),
+		        fbar: [{
+		            text: 'Reload root',
+		            handler: function(){
+		                tree.getRootNode().reload();
+		            }
+		        }]
+		    });
+
+		    tree.render('categoryTree');
+		    tree.getRootNode().expand();
+		    
+		});
+	 
+	</script>
 	
-	<div id="categoryTree"></div>
+	<div id="categoryTree" style="overflow:auto; height:300px;width:250px;border:1px solid #c3daf9;">
+	</div>
 	
 </f:section>
 
