@@ -41,10 +41,10 @@ require_once t3lib_extMgm::extPath('pt_extlist') . 'Classes/Utility/NameSpace.ph
  * 
  * @see Tx_Rbac_Install_Utility and Tx_Rbac_Install_PostInstallHook
  *
- * @package Install
+ * @package Hooks
  * @author Michael Knoll <mimi@kaktusteam.de>
  */
-class Tx_Yag_Install_PostInstallHook {
+class Tx_Yag_Hooks_PostInstallHook {
 
 	/**
 	 * Imports RBAC settings of yag extension into database
