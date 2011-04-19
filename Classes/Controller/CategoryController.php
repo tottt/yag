@@ -64,6 +64,21 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 			}
 		}
 		*/
+		
+		$pageRenderer = $GLOBALS['TBE_TEMPLATE']->getPageRenderer();
+  	$pageRenderer->addExtDirectCode();
+  	
+  	// calling of our own method on the client-side
+//  	$pageRenderer->addExtOnReadyCode('
+//  		TYPO3.YAG.ExtDirect.getSubTree("1", function(result, options) {
+//  			if (typeof console == "object") {
+//  				console.log(result);
+//  			} else {
+//  				alert(result);
+//  			}
+//  		}, this);
+//  	');
+		
 	}
 	
 	

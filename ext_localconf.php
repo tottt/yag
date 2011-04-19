@@ -99,6 +99,6 @@ if(TYPO3_MODE == 'BE') {
 	$TYPO3_CONF_VARS['BE']['AJAX']['txyagM1::getImageList'] = t3lib_extMgm::extPath('yag').'Classes/Utility/Flexform/RecordSelector.php:user_Tx_Yag_Utility_Flexform_RecordSelector->getImageSelectList';
 	$TYPO3_CONF_VARS['BE']['AJAX']['yagAjaxDispatcher'] = t3lib_extMgm::extPath('yag').'Classes/Utility/Ajax/Dispatcher.php:Tx_Yag_Utility_AjaxDispatcher->dispatch';
 	
-	$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ExtDirect']['yag'] = t3lib_extMgm::extPath('yag').'Classes/Utility/Ajax/ExtDirectRouter.php:Tx_Yag_Utility_Ajax_ExtDirectRouter';
+	$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ExtDirect']['TYPO3.YAG.ExtDirect'] = t3lib_extMgm::extPath('yag').'Classes/Utility/Ajax/ExtDirectRouter.php:Tx_Yag_Utility_Ajax_ExtDirectRouter';
 }
 ?>

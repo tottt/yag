@@ -34,7 +34,7 @@
 class Tx_Yag_Utility_Ajax_ExtDirectRouter {
 	
 	
-	
+	/*
 	public function __call($name, $arguments) {
 		
 		$request = array(
@@ -49,6 +49,15 @@ class Tx_Yag_Utility_Ajax_ExtDirectRouter {
 		$dispatcher->setRequest($request);
 		$dispatcher->dispatch();
 	}
+	*/
+	
+	
+	public function getSubTree() {
+		error_log('WE HAVE A CALL');
+		return '[{"id":"n1","text":"Node 1","leaf":false},{"id":"n2","text":"Node 2","leaf":false},{"id":"n3","text":"Node 3","leaf":false},{"id":"n4","text":"Node 4","leaf":false},{"id":"n5","text":"Node 5","leaf":false}]';
+	}
+	
+	
 	
 }
 ?>
