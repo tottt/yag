@@ -97,7 +97,8 @@ if(TYPO3_MODE == 'BE') {
 	require_once t3lib_extMgm::extPath('yag').'Classes/Utility/Flexform/RecordSelector.php';
 	$TYPO3_CONF_VARS['BE']['AJAX']['txyagM1::getAlbumList'] = t3lib_extMgm::extPath('yag').'Classes/Utility/Flexform/RecordSelector.php:user_Tx_Yag_Utility_Flexform_RecordSelector->getAlbumSelectList';
 	$TYPO3_CONF_VARS['BE']['AJAX']['txyagM1::getImageList'] = t3lib_extMgm::extPath('yag').'Classes/Utility/Flexform/RecordSelector.php:user_Tx_Yag_Utility_Flexform_RecordSelector->getImageSelectList';
-	$TYPO3_CONF_VARS['BE']['AJAX']['yagAjaxDispatcher'] = t3lib_extMgm::extPath('yag').'Classes/Utility/AjaxDispatcher.php:Tx_Yag_Utility_AjaxDispatcher->dispatch';
-
+	$TYPO3_CONF_VARS['BE']['AJAX']['yagAjaxDispatcher'] = t3lib_extMgm::extPath('yag').'Classes/Utility/Ajax/Dispatcher.php:Tx_Yag_Utility_AjaxDispatcher->dispatch';
+	
+	$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ExtDirect']['yag'] = t3lib_extMgm::extPath('yag').'Classes/Utility/Ajax/ExtDirectRouter.php:Tx_Yag_Utility_Ajax_ExtDirectRouter';
 }
 ?>

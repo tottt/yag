@@ -31,7 +31,16 @@
 * @author Daniel Lienert <daniel@lienert.cc>
 */
 
-class Tx_Yag_Utility_AjaxDispatcher {
+class Tx_Yag_Utility_Ajax_Dispatcher {
+	
+	
+	/**
+	 * Array of all request Arguments
+	 * 
+	 * @var array
+	 */
+	protected $requestArguments;
+	
 	
 	
 	/**
@@ -77,7 +86,7 @@ class Tx_Yag_Utility_AjaxDispatcher {
 	 * Builds an extbase context and returns the response
 	 */
 	public function dispatch() {
-		$this->prepareCallArguments();
+		$this->prepareRequestArguments();
 		
 		$configuration['extensionName'] = $this->extensionName;
 		$configuration['pluginName'] = $this->pluginName;
@@ -118,20 +127,59 @@ class Tx_Yag_Utility_AjaxDispatcher {
 	
 	
 	/**
+	 * Set the request array
+	 * 
+	 * @param array $request
+	 */
+	public function setRequest(array $request) {
+		$this->request = $request;
+	}
+	
+	
+	
+	/**
 	 * Prepare the call arguments
 	 * @TODO escape / unescape values ?
 	 */
 	protected function prepareCallArguments() {
-		$callJSON = t3lib_div::_GP('call');
+		$request = t3lib_div::_GP('request');
 		
-		//http://t3develop.harper/typo3/ajax.php?ajaxID=yagAjaxDispatcher&id=22&call={%22extensionName%22:%22Yag%22,%22pluginName%22:%22pi1%22,%22controllerName%22:%22Item%22,%22actionName%22:%22showSingle%22,%22arguments%22:{%22item%22:1}}
+		if(is_array($request)) {
+			$this->setRequestArgumentsFromGetPost($request);
+		} else {	
+			$this->setRequestArgumentsFromJSON($request);
+		}
 		
-		$call = json_decode($callJSON, true);
-		$this->extensionName 	= $call['extensionName'];
-		$this->pluginName 		= $call['pluginName'];
-		$this->controllerName 	= $call['controllerName'];
-		$this->actionName 		= $call['actionName'];
-		$this->arguments 		= $call['arguments'];	
+		$this->extensionName 	= $this->requestArguments['extensionName'];
+		$this->pluginName 		= $this->requestArguments['pluginName'];
+		$this->controllerName 	= $this->requestArguments['controllerName'];
+		$this->actionName 		= $this->requestArguments['actionName'];
+		$this->arguments 		= $this->requestArguments['arguments'];	
+	}
+	
+	
+	
+	/**
+	 * Set the request array from JSON
+	 * 
+	 * @param string $request
+	 */
+	protected function setRequestArgumentsFromJSON($request) {
+		$requestArray = json_decode($request, true);
+		if(is_array($requestArray)) {
+			t3lib_div::array_merge_recursive_overrule($this->requestArguments, $requestArray);
+		}
+	}
+	
+	
+	
+	/**
+	 * Set the request array from the getPost array
+	 * 
+	 * @param array $request
+	 */
+	protected function setRequestArgumentsFromGetPost($request) {
+		t3lib_div::array_merge_recursive_overrule($this->requestArguments, $request);
 	}
 }
 ?>
