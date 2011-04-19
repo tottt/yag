@@ -17,39 +17,66 @@ Here is a list of objects / variables that can be accessed in this template:
 <f:layout name="Default" />
 <f:section name="main">
 	<script src="../typo3temp/compressor/Ext.ux.state.TreePanel-e320d698880ec0c6e427b7c382a59af4.js?1302732193" type="text/javascript"></script>
-
+<link rel="stylesheet" type="text/css" href="http://dev.sencha.com/deploy/dev/resources/css/ext-all.css" />
 	<script type="text/javascript">
 
-
-		//Ext.app.YAG_CategoryAPI = {"url":"http:\/\/t3develop.harper\/typo3\/ajax.php?ajaxID=ExtDirect::route&namespace=YAG","type":"remoting","actions":{"TestAction":[{"name":"doEcho","len":1,"formHandler":false},{"name":"multiply","len":1,"formHandler":false},{"name":"getSubTree","len":1,"formHandler":false}],"Profile":[{"name":"getBasicInfo","len":2},{"name":"getPhoneInfo","len":1},{"name":"getLocationInfo","len":1},{"name":"updateBasicInfo","len":2,"formHandler":true}]}};
 		
-		Ext.onReady(function(){
-		    //Ext.Direct.addProvider(Ext.app.ExtDirectAPI);
 
-		    var tree = new Ext.tree.TreePanel({
-		        width: 400,
-		        height: 400,
-		        autoScroll: true,
-		        renderTo: document.body,
-		        root: {
-		            id: 'root',
-		            text: 'Root'
-		        },
-		        loader: new Ext.tree.TreeLoader({
-		            directFn: TYPO3.YAG.ExtDirect.getSubTree
-		        }),
-		        fbar: [{
-		            text: 'Reload root',
-		            handler: function(){
-		                tree.getRootNode().reload();
-		            }
-		        }]
-		    });
+	// To play in Firebug uncomment next line
+	// Ext.get(document.body).update('<div id="ext-test"></div>');
+	 
+	// reference local blank image
+	Ext.BLANK_IMAGE_URL = '/extjs/lib/resources/images/default/s.gif';
+	 
+	// create namespace
+	Ext.namespace('Test');
+	 
+	// create application
+	Test.app = function() {
+	  // do NOT access DOM from here; elements don't exist yet
+	 
+	 
+	 
+	  // private variables
+	 
+	    // private functions
+	 
+	  // public space
+	  return {
+	    // public properties, e.g. strings to translate
+	    
+	    // public methods
+	    init: function() {
+	      
+	   	//Ext.Direct.addProvider(Ext.app.ExtDirectAPI);
+	   	
+	    var grid = new Ext.tree.TreePanel({
+	      renderTo: 'categoryTree',
+	      frame:true,
+	      title: 'Tree Panel',
+	      iconCls: 'icon-basket',
+	      collapsible:true,
+	      titleCollapse: true,
+	      style: 'padding-bottom: 5px',
+	      root: new Ext.tree.AsyncTreeNode({
+	    	  text: 'Global root',
+	          id: 0
+	      }),
+	          
+	      loader: new Ext.tree.TreeLoader({
+	            directFn: TYPO3.YAG.ExtDirect.getSubTree
+	        }),
+	      rootVisible: true,
+	      lines: false
+	    });
+	  
+	  
+	    } // end of init
+	  };
+	}(); // end of app
+	 
+	Ext.onReady(Test.app.init, Test.app);
 
-		    tree.render('categoryTree');
-		    tree.getRootNode().expand();
-		    
-		});
 	 
 	</script>
 	

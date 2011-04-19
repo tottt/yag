@@ -54,7 +54,9 @@ class Tx_Yag_Utility_Ajax_ExtDirectRouter {
 	
 	public function getSubTree() {
 		error_log('WE HAVE A CALL');
-		return '[{"id":"n1","text":"Node 1","leaf":false},{"id":"n2","text":"Node 2","leaf":false},{"id":"n3","text":"Node 3","leaf":false},{"id":"n4","text":"Node 4","leaf":false},{"id":"n5","text":"Node 5","leaf":false}]';
+		
+		$x = array('id' => 1, 'text' => 'TestNode', 'leaf' => true);
+		return $x;
 	}
 	
 	
