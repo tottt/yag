@@ -16,72 +16,45 @@ Here is a list of objects / variables that can be accessed in this template:
 
 <f:layout name="Default" />
 <f:section name="main">
-	<script src="../typo3temp/compressor/Ext.ux.state.TreePanel-e320d698880ec0c6e427b7c382a59af4.js?1302732193" type="text/javascript"></script>
-<link rel="stylesheet" type="text/css" href="http://dev.sencha.com/deploy/dev/resources/css/ext-all.css" />
 	<script type="text/javascript">
-
-		
-
-	// To play in Firebug uncomment next line
-	// Ext.get(document.body).update('<div id="ext-test"></div>');
-	 
-	// reference local blank image
-	Ext.BLANK_IMAGE_URL = '/extjs/lib/resources/images/default/s.gif';
-	 
-	// create namespace
-	Ext.namespace('Test');
-	 
-	// create application
-	Test.app = function() {
-	  // do NOT access DOM from here; elements don't exist yet
-	 
-	 
-	 
-	  // private variables
-	 
-	    // private functions
-	 
-	  // public space
-	  return {
-	    // public properties, e.g. strings to translate
+	
+	//Ext.BLANK_IMAGE_URL = '<?php echo $html->url('/js/ext-2.0.1/resources/images/default/s.gif') ?>';
+	
+	Ext.onReady(function(){
 	    
-	    // public methods
-	    init: function() {
-	      
-	   	//Ext.Direct.addProvider(Ext.app.ExtDirectAPI);
-	   	
-	    var grid = new Ext.tree.TreePanel({
-	      renderTo: 'categoryTree',
-	      frame:true,
-	      title: 'Tree Panel',
-	      iconCls: 'icon-basket',
-	      collapsible:true,
-	      titleCollapse: true,
-	      style: 'padding-bottom: 5px',
-	      root: new Ext.tree.AsyncTreeNode({
-	    	  text: 'Global root',
-	          id: 0
-	      }),
-	          
-	      loader: new Ext.tree.TreeLoader({
-	            directFn: TYPO3.YAG.ExtDirect.getSubTree
-	        }),
-	      rootVisible: true,
-	      lines: false
+	    var getnodesUrl = '../test.php';
+	    //var reorderUrl = '<?php echo $html->url('/employees/reorder/') ?>';
+	    //var reparentUrl = '<?php echo $html->url('/employees/reparent/') ?>';
+	    
+	    var Tree = Ext.tree;
+	    
+	    var tree = new Tree.TreePanel({
+	        el:'tree-div',
+	        autoScroll:true,
+	        animate:true,
+	        enableDD:true,
+	        containerScroll: true,
+	        rootVisible: true,
+	        loader: new Ext.tree.TreeLoader({
+	            dataUrl:getnodesUrl
+	        })
 	    });
-	  
-	  
-	    } // end of init
-	  };
-	}(); // end of app
-	 
-	Ext.onReady(Test.app.init, Test.app);
-
-	 
+	    
+	    var root = new Tree.AsyncTreeNode({
+	        text:'Employees',
+	        draggable:false,
+	        id:'root'
+	    });
+	    tree.setRootNode(root);
+	    
+	    tree.render();
+	    root.expand();
+	
+	});
+	
 	</script>
 	
-	<div id="categoryTree" style="overflow:auto; height:300px;width:250px;border:1px solid #c3daf9;">
-	</div>
+	<div id="tree-div" style="height:400px;"></div>
 	
 </f:section>
 
