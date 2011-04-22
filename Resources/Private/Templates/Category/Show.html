@@ -21,11 +21,7 @@ Here is a list of objects / variables that can be accessed in this template:
 	//Ext.BLANK_IMAGE_URL = '<?php echo $html->url('/js/ext-2.0.1/resources/images/default/s.gif') ?>';
 	
 	Ext.onReady(function(){
-			    
-	    var getnodesUrl = '../test.php';
-	    //var reorderUrl = '<?php echo $html->url('/employees/reorder/') ?>';
-	    //var reparentUrl = '<?php echo $html->url('/employees/reparent/') ?>';
-	    
+			        
 	    var baseRequest = {extensionName:'yag',pluginName:'pi1',controllerName:'Category'};
 
 	    Ext.getUrlParam = function(param) {
@@ -50,32 +46,76 @@ Here is a list of objects / variables that can be accessed in this template:
 	        }
 	    });
 	    
-	    var tree = new Tree.TreePanel({
-	        el:'tree-div',
+	    var yagCategoryTree = new Tree.TreePanel({
+	        el:'categoryTreeDiv',
 	        autoScroll:true,
 	        animate:true,
 	        enableDD:true,
 	        containerScroll: true,
 	        rootVisible: true,
-	        loader: Tree_Category_Loader
+	        loader: Tree_Category_Loader,
+	        tbar : [
+	                {
+	                    xtype : 'button' , text : 'Add new Category', 
+	                    handler : function(){ 
+
+	                        var selectedItem = yagCategoryTree.getSelectionModel().getSelectedNode();
+
+	                            if(!selectedItem){
+
+	                                selectedItem = yagCategoryTree.getRootNode();
+	                            }
+
+	                            handleCreate = function(btn, text,cBoxes){
+	                                if(btn=='ok' && text){
+                                        var newNode = new Ext.tree.TreeNode ({
+                                                id : 'new',
+                                                text : text,
+                                        });
+
+                                        if(selectedItem.isLeaf()) {
+                                            selectedItem.parentNode.insertBefore(newNode, selectedItem.nextSibling);
+                                        } else {
+                                            selectedItem.insertBefore(newNode, selectedItem.firstChild);
+                                            selectedItem.expand();
+                                        }
+	                                }
+
+	                            }
+	                        Ext.MessageBox.show({
+	                            title:'Add a new Category',
+	                            msg: 'Category Name:',
+	                            buttons: Ext.MessageBox.OKCANCEL,
+	                            prompt:true,
+	                            fn: handleCreate
+	                        });
+	                        }
+
+	                }
+
+	            ],
+		        
 	    });
 	    
 	    var root = new Tree.AsyncTreeNode({
-	        text:'Employees',
+	        text:'Categories',
 	        draggable:false,
 	        id:'root'
 	    });
-	    tree.setRootNode(root);
-
+	    yagCategoryTree.setRootNode(root);
 	    
-	    tree.render();
+	    yagCategoryTree.render();
 	    root.expand();
 	
 	});
 	
 	</script>
 	
-	<div id="tree-div" style="height:400px;"></div>
+	<div id="categoryTreeDiv" style="height:200px; width:200px;"></div>
+	<div id="categoryEditDiv" style="height:200px; width:300px;">
+		<f:form.textField name="name" />
+		<f:form.textArea name="description" rows="3" cols="10"/>
+	</div>
 	
 </f:section>
 
