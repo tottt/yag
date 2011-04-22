@@ -61,99 +61,100 @@ Here is a list of objects / variables that can be accessed in this template:
 		    rootVisible: true,
 		    loader: Tree_Category_Loader,
 		    tbar : [{
-				xtype : 'button' , text : 'Add new Category', 
-				handler : function(){ 
-					var selectedItem = yagCategoryTree.getSelectionModel().getSelectedNode();
-		
-					if(!selectedItem){
-						selectedItem = yagCategoryTree.getRootNode();
-					}
-		
-					handleCreate = function(text){
-						if(text){
-							var newNode = new Ext.tree.TreeNode ({
-								id : 'new',
-								text : text,
-							});
-							
-							if(selectedItem.isLeaf()) {
-								selectedItem.parentNode.insertBefore(newNode, selectedItem.nextSibling);
-							} else {
-								selectedItem.insertBefore(newNode, selectedItem.firstChild);
-								selectedItem.expand();
+			    	xtype : 'button' , text : 'Delete Category', 
+					handler : function(){ 
+				    	var selectedItem = yagCategoryTree.getSelectionModel().getSelectedNode();
+						
+						if(selectedItem){
+							selectedItem.remove();
+						}
+			    	}
+		    	}, {
+				    xtype : 'button' , text : 'Add new Category', 
+					handler : function(){ 
+						var selectedItem = yagCategoryTree.getSelectionModel().getSelectedNode();
+			
+						if(!selectedItem){
+							selectedItem = yagCategoryTree.getRootNode();
+						}
+			
+						handleCreate = function(text, description){
+							if(text){
+								var newNode = new Ext.tree.TreeNode ({
+									id : 'new',
+									text : text,
+									description: description
+								});
+								
+								if(selectedItem.isLeaf()) {
+									selectedItem.parentNode.insertBefore(newNode, selectedItem.nextSibling);
+								} else {
+									selectedItem.insertBefore(newNode, selectedItem.firstChild);
+									selectedItem.expand();
+								}
 							}
 						}
-					}
-					/*
-					Ext.MessageBox.show({
-						title:'Add a new Category',
-						msg: 'Category Name:',
-						buttons: Ext.MessageBox.OKCANCEL,
-						prompt:true,
-						fn: handleCreate
-					});
-					*/
-					
-				    var form = new Ext.form.FormPanel({
-				        baseCls: 'x-plain',
-				        labelWidth: 55,
-				        url: 'save-form.php',
-				        layout: {
-				            type: 'vbox',
-				            align: 'stretch'  // Child items are stretched to full width
-				        },
-				        defaults: {
-				            xtype: 'textfield'
-				        },
-
-				        items: [{
-				        	xtype: 'textfield',
-				        	fieldLabel: 'Name',
-				            fieldLabel: 'Subject',
-				            name: 'name'
-				        }, {
-				            xtype: 'textarea',
-				            fieldLabel: 'Description',
-				            hideLabel: true,
-				            name: 'description',
-				            flex: 1  // Take up all *remaining* vertical space
-				        }]
-				    });
-					
-					
-					if(!win){
-			            win = new Ext.Window({
-			                title: 'Compose message',
-			                collapsible: true,
-			                maximizable: true,
-			                width: 300,
-			                height: 200,
-			                minWidth: 300,
-			                minHeight: 200,
-			                layout: 'fit',
-			                plain: true,
-			                bodyStyle: 'padding:5px;',
-			                buttonAlign: 'center',
-			                items: form,
-			                buttons: [{
-			                    text: 'Save',
-			                    handler: function(){
-			                    	handleCreate(form.getForm().findField('name').getValue());
-	                        		win.hide();
-	                    		}
-			                },{
-			                    text: 'Cancel',
-			                    handler: function(){
-		                        	win.hide();
-		                    	}
-			                }]
-			            });
-			        }
-			        win.show(this);
-					
-			}
-		}],
-});
+						
+					    var form = new Ext.form.FormPanel({
+					        baseCls: 'x-plain',
+					        labelWidth: 55,
+					        url: 'save-form.php',
+					        layout: {
+					            type: 'vbox',
+					            align: 'stretch'  // Child items are stretched to full width
+					        },
+					        defaults: {
+					            xtype: 'textfield'
+					        },
+	
+					        items: [{
+					        	xtype: 'textfield',
+					        	fieldLabel: 'Name',
+					            fieldLabel: 'Subject',
+					            name: 'name'
+					        }, {
+					            xtype: 'textarea',
+					            fieldLabel: 'Description',
+					            hideLabel: true,
+					            name: 'description',
+					            flex: 1  // Take up all *remaining* vertical space
+					        }]
+					    });
+						
+						
+						if(!win){
+				            win = new Ext.Window({
+				                title: 'Compose message',
+				                collapsible: true,
+				                maximizable: true,
+				                width: 300,
+				                height: 200,
+				                minWidth: 300,
+				                minHeight: 200,
+				                layout: 'fit',
+				                plain: true,
+				                bodyStyle: 'padding:5px;',
+				                buttonAlign: 'center',
+				                items: form,
+				                buttons: [{
+				                    text: 'Save',
+				                    handler: function(){
+				                    	handleCreate(form.getForm().findField('name').getValue(), form.getForm().findField('description').getValue());
+		                        		win.hide();
+		                    		}
+				                },{
+				                    text: 'Cancel',
+				                    handler: function(){
+			                        	win.hide();
+			                    	}
+				                }]
+				            });
+				        }
+				        win.show(this);
+						
+				}
+			}],
+	});
 	    
 	    var root = new Tree.AsyncTreeNode({
 	        text:'Categories',
