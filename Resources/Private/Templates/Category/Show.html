@@ -30,9 +30,14 @@ Here is a list of objects / variables that can be accessed in this template:
     	   return param ? params[param] : params;
     	};
 	    
-		function buildRequest(action) {
+		function buildRequest(action, arguments) {
 			var actionRequest = baseRequest;
 			actionRequest.actionName = action;
+
+			if(arguments) {
+				actionRequest.arguments = arguments;
+			}
+
 			return actionRequest;
 		}
 	    
@@ -92,6 +97,28 @@ Here is a list of objects / variables that can be accessed in this template:
 									selectedItem.insertBefore(newNode, selectedItem.firstChild);
 									selectedItem.expand();
 								}
+
+								Ext.Ajax.request({
+							        url:'ajax.php',
+							        params: {
+										id: Ext.getUrlParam('id'),
+										ajaxID: 'yagAjaxDispatcher',
+							        	request: Ext.encode(
+									        	buildRequest('addNode',{
+									        		parentNodeId: selectedItem.id,
+										        	nodeTitle: text,
+										        	nodeDescription: description
+										        }))
+									},
+							        success:function(response, request) {
+								        alert(response.responseText);
+							        },
+							        failure:function() {
+							            alert("Error while saving the new node.");
+							            newNode.delete();
+							        }
+							    
+							    });
 							}
 						}
 						
@@ -124,7 +151,7 @@ Here is a list of objects / variables that can be accessed in this template:
 						
 						if(!win){
 				            win = new Ext.Window({
-				                title: 'Compose message',
+				                title: 'Add new Category',
 				                collapsible: true,
 				                maximizable: true,
 				                width: 300,
@@ -159,7 +186,7 @@ Here is a list of objects / variables that can be accessed in this template:
 	    var root = new Tree.AsyncTreeNode({
 	        text:'Categories',
 	        draggable:false,
-	        id:'root'
+	        id:1
 	    });
 	    yagCategoryTree.setRootNode(root);
 	    
@@ -180,12 +207,6 @@ Here is a list of objects / variables that can be accessed in this template:
 			</div>
 		</div>
 	</div>
-
-
-
-
-
-
 </f:section>
 
 <f:section name="beButtonsLeft">

@@ -40,7 +40,7 @@ if (TYPO3_MODE === 'BE')	{
 	            setAlbumAsGalleryThumb,hideAlbum,unhideAlbum,getSubDirs',
 	        'Setup' => 'index, setupRbac,truncateTables',
 	        'AdminMenu' => 'index',
-			'Category' => 'show',
+			'Category' => 'show,getSubTree,addNode',
 		
 		    // This is additional for backend! Keep in mind, when copy&pasting from ext_localconf
 			'Backend' => 'settingsNotAvailable,extConfSettingsNotAvailable,maintenanceOverview,clearAllPageCache',

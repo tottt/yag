@@ -103,9 +103,17 @@ class Tx_Yag_Utility_Ajax_Dispatcher {
 		$dispatcher =  $this->objectManager->get('Tx_Extbase_MVC_Dispatcher');
 		$dispatcher->dispatch($request, $response);
 
+		$response->sendHeaders();
 		echo $response->getContent();
+		
+		$this->cleanShutDown();
 	}
 
+	
+	protected function cleanShutDown() {
+		$this->objectManager->get('Tx_Extbase_Persistence_Manager')->persistAll();
+		$this->objectManager->get('Tx_Extbase_Reflection_Service')->shutdown();
+	}
 	
 	
 	/**

@@ -85,7 +85,6 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	public function getSubTreeAction() {
 		
 		$node = t3lib_div::_GP('node');
-		if($node=='root') $node = 1;
 		
 		$category = $this->categoryRepository->findByUid($node);
 		
@@ -103,5 +102,31 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 		return json_encode($childCategoryArray);
 	}
 
+	
+	/**
+	 * Add a new node to the tree
+	 *
+	 * @param integer $parentNodeId
+	 * @param string $nodeTitle
+	 * @param string $nodeDescription
+	 * @dontvalidate
+	 */
+	public function addNodeAction($parentNodeId, $nodeTitle, $nodeDescription) {
+		$parentCategory = $this->categoryRepository->findByUid($parentNodeId);
+		
+		if($parentCategory !== NULL) {
+			$newCategory = new Tx_Yag_Domain_Model_Category();
+			$newCategory->setRoot($parentCategory);
+			$newCategory->setName($nodeTitle);
+			$newCategory->setDescription($nodeDescription);
+			
+			$this->categoryRepository->add($newCategory);
+			$newCategory->setParent($parentCategory);
+			//$parentCategory->addChild($newCategory); // Warum das nicht ??
+
+			$this->objectManager->get('Tx_Extbase_Persistence_Manager')->persistAll();
+			return $newCategory->getUid();
+		}
+	}
 }
 ?>
