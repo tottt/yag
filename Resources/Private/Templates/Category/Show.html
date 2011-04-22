@@ -21,12 +21,34 @@ Here is a list of objects / variables that can be accessed in this template:
 	//Ext.BLANK_IMAGE_URL = '<?php echo $html->url('/js/ext-2.0.1/resources/images/default/s.gif') ?>';
 	
 	Ext.onReady(function(){
-	    
+			    
 	    var getnodesUrl = '../test.php';
 	    //var reorderUrl = '<?php echo $html->url('/employees/reorder/') ?>';
 	    //var reparentUrl = '<?php echo $html->url('/employees/reparent/') ?>';
 	    
+	    var baseRequest = {extensionName:'yag',pluginName:'pi1',controllerName:'Category'};
+
+	    Ext.getUrlParam = function(param) {
+    	   var params = Ext.urlDecode(location.search.substring(1));
+    	   return param ? params[param] : params;
+    	};
+	    
+		function buildRequest(action) {
+			var actionRequest = baseRequest;
+			actionRequest.actionName = action;
+			return actionRequest;
+		}
+	    
 	    var Tree = Ext.tree;
+
+		var Tree_Category_Loader = new Tree.TreeLoader({
+	        dataUrl:"ajax.php",
+	        baseParams: {
+	        	id: Ext.getUrlParam('id'),
+	        	ajaxID: 'yagAjaxDispatcher',
+				request: Ext.encode(buildRequest('getSubTree')),
+	        }
+	    });
 	    
 	    var tree = new Tree.TreePanel({
 	        el:'tree-div',
@@ -35,9 +57,7 @@ Here is a list of objects / variables that can be accessed in this template:
 	        enableDD:true,
 	        containerScroll: true,
 	        rootVisible: true,
-	        loader: new Ext.tree.TreeLoader({
-	            dataUrl:getnodesUrl
-	        })
+	        loader: Tree_Category_Loader
 	    });
 	    
 	    var root = new Tree.AsyncTreeNode({
@@ -46,6 +66,7 @@ Here is a list of objects / variables that can be accessed in this template:
 	        id:'root'
 	    });
 	    tree.setRootNode(root);
+
 	    
 	    tree.render();
 	    root.expand();

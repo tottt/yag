@@ -39,7 +39,7 @@ class Tx_Yag_Utility_Ajax_Dispatcher {
 	 * 
 	 * @var array
 	 */
-	protected $requestArguments;
+	protected $requestArguments = array();
 	
 	
 	
@@ -86,7 +86,7 @@ class Tx_Yag_Utility_Ajax_Dispatcher {
 	 * Builds an extbase context and returns the response
 	 */
 	public function dispatch() {
-		$this->prepareRequestArguments();
+		$this->prepareCallArguments();
 		
 		$configuration['extensionName'] = $this->extensionName;
 		$configuration['pluginName'] = $this->pluginName;
@@ -116,7 +116,7 @@ class Tx_Yag_Utility_Ajax_Dispatcher {
 	protected function buildRequest() {
 		$request = $this->objectManager->get('Tx_Extbase_MVC_Web_Request'); /* @var $request Tx_Extbase_MVC_Request */
 		$request->setControllerExtensionName($this->extensionName);
-		$request->setPluginName($this->actionName);
+		$request->setPluginName($this->pluginName);
 		$request->setControllerName($this->controllerName);
 		$request->setControllerActionName($this->actionName);
 		$request->setArguments($this->arguments);
@@ -143,10 +143,8 @@ class Tx_Yag_Utility_Ajax_Dispatcher {
 	 */
 	protected function prepareCallArguments() {
 		$request = t3lib_div::_GP('request');
-		
-		if(is_array($request)) {
-			$this->setRequestArgumentsFromGetPost($request);
-		} else {	
+
+		if($request) {
 			$this->setRequestArgumentsFromJSON($request);
 		}
 		
@@ -154,7 +152,9 @@ class Tx_Yag_Utility_Ajax_Dispatcher {
 		$this->pluginName 		= $this->requestArguments['pluginName'];
 		$this->controllerName 	= $this->requestArguments['controllerName'];
 		$this->actionName 		= $this->requestArguments['actionName'];
-		$this->arguments 		= $this->requestArguments['arguments'];	
+		
+		$this->arguments 		= $this->requestArguments['arguments'];
+		if(!is_array($this->arguments)) $this->arguments = array();
 	}
 	
 	
@@ -167,7 +167,7 @@ class Tx_Yag_Utility_Ajax_Dispatcher {
 	protected function setRequestArgumentsFromJSON($request) {
 		$requestArray = json_decode($request, true);
 		if(is_array($requestArray)) {
-			t3lib_div::array_merge_recursive_overrule($this->requestArguments, $requestArray);
+			$this->requestArguments = t3lib_div::array_merge_recursive_overrule($this->requestArguments, $requestArray);
 		}
 	}
 	
