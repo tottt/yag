@@ -21,7 +21,8 @@ Here is a list of objects / variables that can be accessed in this template:
 	//Ext.BLANK_IMAGE_URL = '<?php echo $html->url('/js/ext-2.0.1/resources/images/default/s.gif') ?>';
 	
 	Ext.onReady(function(){
-			        
+		
+	        
 	    var baseRequest = {extensionName:'yag',pluginName:'pi1',controllerName:'Category'};
 
 	    Ext.getUrlParam = function(param) {
@@ -45,57 +46,114 @@ Here is a list of objects / variables that can be accessed in this template:
 				request: Ext.encode(buildRequest('getSubTree')),
 	        }
 	    });
+
+		var win;
+	    var button = Ext.get('show-btn');
+
+
 	    
-	    var yagCategoryTree = new Tree.TreePanel({
-	        el:'categoryTreeDiv',
-	        autoScroll:true,
-	        animate:true,
-	        enableDD:true,
-	        containerScroll: true,
-	        rootVisible: true,
-	        loader: Tree_Category_Loader,
-	        tbar : [
-	                {
-	                    xtype : 'button' , text : 'Add new Category', 
-	                    handler : function(){ 
+		var yagCategoryTree = new Tree.TreePanel({
+		    el:'categoryTreeDiv',
+		    autoScroll:true,
+		    animate:true,
+		    enableDD:true,
+		    containerScroll: true,
+		    rootVisible: true,
+		    loader: Tree_Category_Loader,
+		    tbar : [{
+				xtype : 'button' , text : 'Add new Category', 
+				handler : function(){ 
+					var selectedItem = yagCategoryTree.getSelectionModel().getSelectedNode();
+		
+					if(!selectedItem){
+						selectedItem = yagCategoryTree.getRootNode();
+					}
+		
+					handleCreate = function(text){
+						if(text){
+							var newNode = new Ext.tree.TreeNode ({
+								id : 'new',
+								text : text,
+							});
+							
+							if(selectedItem.isLeaf()) {
+								selectedItem.parentNode.insertBefore(newNode, selectedItem.nextSibling);
+							} else {
+								selectedItem.insertBefore(newNode, selectedItem.firstChild);
+								selectedItem.expand();
+							}
+						}
+					}
+					/*
+					Ext.MessageBox.show({
+						title:'Add a new Category',
+						msg: 'Category Name:',
+						buttons: Ext.MessageBox.OKCANCEL,
+						prompt:true,
+						fn: handleCreate
+					});
+					*/
+					
+				    var form = new Ext.form.FormPanel({
+				        baseCls: 'x-plain',
+				        labelWidth: 55,
+				        url: 'save-form.php',
+				        layout: {
+				            type: 'vbox',
+				            align: 'stretch'  // Child items are stretched to full width
+				        },
+				        defaults: {
+				            xtype: 'textfield'
+				        },
 
-	                        var selectedItem = yagCategoryTree.getSelectionModel().getSelectedNode();
-
-	                            if(!selectedItem){
-
-	                                selectedItem = yagCategoryTree.getRootNode();
-	                            }
-
-	                            handleCreate = function(btn, text,cBoxes){
-	                                if(btn=='ok' && text){
-                                        var newNode = new Ext.tree.TreeNode ({
-                                                id : 'new',
-                                                text : text,
-                                        });
-
-                                        if(selectedItem.isLeaf()) {
-                                            selectedItem.parentNode.insertBefore(newNode, selectedItem.nextSibling);
-                                        } else {
-                                            selectedItem.insertBefore(newNode, selectedItem.firstChild);
-                                            selectedItem.expand();
-                                        }
-	                                }
-
-	                            }
-	                        Ext.MessageBox.show({
-	                            title:'Add a new Category',
-	                            msg: 'Category Name:',
-	                            buttons: Ext.MessageBox.OKCANCEL,
-	                            prompt:true,
-	                            fn: handleCreate
-	                        });
-	                        }
-
-	                }
-
-	            ],
-		        
-	    });
+				        items: [{
+				        	xtype: 'textfield',
+				        	fieldLabel: 'Name',
+				            fieldLabel: 'Subject',
+				            name: 'name'
+				        }, {
+				            xtype: 'textarea',
+				            fieldLabel: 'Description',
+				            hideLabel: true,
+				            name: 'description',
+				            flex: 1  // Take up all *remaining* vertical space
+				        }]
+				    });
+					
+					
+					if(!win){
+			            win = new Ext.Window({
+			                title: 'Compose message',
+			                collapsible: true,
+			                maximizable: true,
+			                width: 300,
+			                height: 200,
+			                minWidth: 300,
+			                minHeight: 200,
+			                layout: 'fit',
+			                plain: true,
+			                bodyStyle: 'padding:5px;',
+			                buttonAlign: 'center',
+			                items: form,
+			                buttons: [{
+			                    text: 'Save',
+			                    handler: function(){
+			                    	handleCreate(form.getForm().findField('name').getValue());
+	                        		win.hide();
+	                    		}
+			                },{
+			                    text: 'Cancel',
+			                    handler: function(){
+		                        	win.hide();
+		                    	}
+			                }]
+			            });
+			        }
+			        win.show(this);
+					
+			}
+		}],
+});
 	    
 	    var root = new Tree.AsyncTreeNode({
 	        text:'Categories',
@@ -112,11 +170,21 @@ Here is a list of objects / variables that can be accessed in this template:
 	</script>
 	
 	<div id="categoryTreeDiv" style="height:200px; width:200px;"></div>
-	<div id="categoryEditDiv" style="height:200px; width:300px;">
-		<f:form.textField name="name" />
-		<f:form.textArea name="description" rows="3" cols="10"/>
+
+	<div id="categoryEditDiv" class="x-hidden">
+		<div class="x-window-header">Category</div>
+			<div id="hello-tabs"><!-- Auto create tab 1 -->
+			<div class="x-tab" title="Category edit">
+				<p><f:form.textField name="name" /> <f:form.textArea name="description" rows="3" cols="10" /></p>
+			</div>
+		</div>
 	</div>
-	
+
+
+
+
+
+
 </f:section>
 
 <f:section name="beButtonsLeft">
