@@ -52,7 +52,7 @@ Here is a list of objects / variables that can be accessed in this template:
 	        }
 	    });
 
-		var win;
+		var createNewWindow;
 	    var button = Ext.get('show-btn');
 
 
@@ -66,16 +66,59 @@ Here is a list of objects / variables that can be accessed in this template:
 		    rootVisible: true,
 		    loader: Tree_Category_Loader,
 		    tbar : [{
-			    	xtype : 'button' , text : 'Delete Category', 
+			    	xtype : 'button' , text : 'Delete', 
 					handler : function(){ 
 				    	var selectedItem = yagCategoryTree.getSelectionModel().getSelectedNode();
 						
 						if(selectedItem){
-							selectedItem.remove();
+							
+							Ext.Ajax.request({
+						        url:'ajax.php',
+						        params: {
+									id: Ext.getUrlParam('id'),
+									ajaxID: 'yagAjaxDispatcher',
+						        	request: Ext.encode(
+								        	buildRequest('removeNode',{
+								        		nodeId: selectedItem.id,
+									        }))
+								},
+						        success:function(response, request) {
+									selectedItem.remove();
+						        },
+						        failure:function() {
+						            alert("Error while deleting the Category.");
+						        }
+						    });
+						}
+			    	}
+		    	},{
+			    	xtype : 'button' , text : 'Edit', 
+					handler : function(){ 
+				    	var selectedItem = yagCategoryTree.getSelectionModel().getSelectedNode();
+						
+						if(selectedItem){
+							
+							Ext.Ajax.request({
+						        url:'ajax.php',
+						        params: {
+									id: Ext.getUrlParam('id'),
+									ajaxID: 'yagAjaxDispatcher',
+						        	request: Ext.encode(
+								        	buildRequest('removeNode',{
+								        		nodeId: selectedItem.id,
+									        }))
+								},
+						        success:function(response, request) {
+									selectedItem.remove();
+						        },
+						        failure:function() {
+						            alert("Error while deleting the Category.");
+						        }
+						    });
 						}
 			    	}
 		    	}, {
-				    xtype : 'button' , text : 'Add new Category', 
+				    xtype : 'button' , text : 'Add', 
 					handler : function(){ 
 						var selectedItem = yagCategoryTree.getSelectionModel().getSelectedNode();
 			
@@ -149,8 +192,8 @@ Here is a list of objects / variables that can be accessed in this template:
 					    });
 						
 						
-						if(!win){
-				            win = new Ext.Window({
+						if(!createNewWindow){
+				            createNewWindow = new Ext.Window({
 				                title: 'Add new Category',
 				                collapsible: true,
 				                maximizable: true,
@@ -167,17 +210,17 @@ Here is a list of objects / variables that can be accessed in this template:
 				                    text: 'Save',
 				                    handler: function(){
 				                    	handleCreate(form.getForm().findField('name').getValue(), form.getForm().findField('description').getValue());
-		                        		win.hide();
+				                    	createNewWindow.hide();
 		                    		}
 				                },{
 				                    text: 'Cancel',
 				                    handler: function(){
-			                        	win.hide();
+				                		createNewWindow.hide();
 			                    	}
 				                }]
 				            });
 				        }
-				        win.show(this);
+						createNewWindow.show(this);
 						
 				}
 			}],

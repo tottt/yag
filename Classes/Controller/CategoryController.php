@@ -65,23 +65,13 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 		}
 		die();
 		*/
-		$pageRenderer = $GLOBALS['TBE_TEMPLATE']->getPageRenderer();
-  	$pageRenderer->addExtDirectCode();
-  	
-  	// calling of our own method on the client-side
-//  	$pageRenderer->addExtOnReadyCode('
-//  		TYPO3.YAG.ExtDirect.getSubTree("1", function(result, options) {
-//  			if (typeof console == "object") {
-//  				console.log(result);
-//  			} else {
-//  				alert(result);
-//  			}
-//  		}, this);
-//  	');
-		
 	}
 	
 	
+	
+	/**
+	 * Get trees under the given tree
+	 */
 	public function getSubTreeAction() {
 		
 		$node = t3lib_div::_GP('node');
@@ -94,6 +84,7 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 			$childCategoryArray[] = array(
 				'id' => $childCategory->getUid(),
 				'text' => $childCategory->getName(),
+				'description' => $childCategory->getDescription(),
 				'leaf' => $childCategory->hasChildren() ? '': 'true'
 			);
 
@@ -102,6 +93,22 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 		return json_encode($childCategoryArray);
 	}
 
+	
+	
+	/**
+	 * Save Title / Description of a given Node
+	 * 
+	 * @param integer $treeNode
+	 * @param string $nodeTitle
+	 * @param string $nodeDescription
+	 */
+	public function saveTreeNodeAction($treeNode, $nodeTitle, $nodeDescription) {
+		$category = $this->categoryRepository->findByUid($treeNode);
+		$category->setName($nodeTitle);
+		$category->setDescription($nodeDescription);
+	}
+	
+	
 	
 	/**
 	 * Add a new node to the tree
@@ -127,6 +134,18 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 			$this->objectManager->get('Tx_Extbase_Persistence_Manager')->persistAll();
 			return $newCategory->getUid();
 		}
+	}
+	
+	
+	
+	/**
+	 * Remove Node and subnodes from tree
+	 * 
+	 * @param integer $nodeId
+	 */
+	public function removeNodeAction($nodeId) {
+		$CategoryToDelete = $this->categoryRepository->findByUid($nodeId);
+		// Wie werden Kategorien gelöscht?
 	}
 }
 ?>
