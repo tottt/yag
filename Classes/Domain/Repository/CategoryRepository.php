@@ -57,13 +57,16 @@ class Tx_Yag_Domain_Repository_CategoryRepository extends Tx_Yag_Domain_Reposito
 	 * Returns a category (and its sub-categories) for a given category uid
 	 *
 	 * @param int $uid
+	 * @return Tx_Yag_Domain_Model_Category
 	 */
 	public function findByUid($uid) {
 		$rootCategory = parent::findByUid($uid);
 		$childCategories = new Tx_Extbase_Persistence_ObjectStorage();
+		
 		foreach($this->findChildCategoriesByRootCategory($rootCategory) as $childCategory) {
 			$childCategories->attach($childCategory);
 		}
+		
         $this->buildUpCategoryTree($rootCategory, $childCategories);
         return $rootCategory;
 	}
@@ -79,7 +82,7 @@ class Tx_Yag_Domain_Repository_CategoryRepository extends Tx_Yag_Domain_Reposito
 	 */
 	protected function buildUpCategoryTree(Tx_Yag_Domain_Model_Category $root, $children) {
 		foreach ($children as $child) { /* @var $child Tx_Yag_Domain_Model_Category */
-			#print_r("processing root " . $root->getName() . " lft: {$root->getLft()} - rgt: {$root->getRgt()} with child " . $child->getName() . " lft: {$child->getLft()} - rgt: {$child->getRgt()} <br>"); 
+
 			if ($child->getRgt() < $root->getRgt()) {
 				/* Current child must be child of current root - so we add it */
                 $root->addChild($child, false);

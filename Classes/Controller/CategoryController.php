@@ -63,8 +63,8 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 				echo "--" . $subchild->getName() . '<br>';
 			}
 		}
+		die();
 		*/
-		
 		$pageRenderer = $GLOBALS['TBE_TEMPLATE']->getPageRenderer();
   	$pageRenderer->addExtDirectCode();
   	
@@ -83,20 +83,24 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	
 	
 	public function getSubTreeAction() {
-		return
-			"[{
-        id: 1,
-        text: 'A leaf Node',
-        leaf: true
-    },{
-        id: 2,
-        text: 'A folder Node',
-        children: [{
-            id: 3,
-            text: 'A child Node',
-            leaf: true
-        }]
-   }]";
+		
+		$node = t3lib_div::_GP('node');
+		if($node=='root') $node = 1;
+		
+		$category = $this->categoryRepository->findByUid($node);
+		
+		$childCategoryArray = array();
+		
+		foreach($category->getChildren() as $childCategory) { /* @var $childCategory Tx_Yag_Domain_Model_Category */
+			$childCategoryArray[] = array(
+				'id' => $childCategory->getUid(),
+				'text' => $childCategory->getName(),
+				'leaf' => $childCategory->hasChildren() ? '': 'true'
+			);
+
+		}
+		
+		return json_encode($childCategoryArray);
 	}
 
 }
