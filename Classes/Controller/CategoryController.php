@@ -98,27 +98,26 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	/**
 	 * Save Title / Description of a given Node
 	 * 
-	 * @param integer $treeNode
-	 * @param string $nodeTitle
-	 * @param string $nodeDescription
+	 * @param Tx_Yag_Domain_Model_Category $category
+	 * @param string $categoryTitle
+	 * @param string $categoryDescription
 	 */
-	public function saveTreeNodeAction($treeNode, $nodeTitle, $nodeDescription) {
-		$category = $this->categoryRepository->findByUid($treeNode);
-		$category->setName($nodeTitle);
-		$category->setDescription($nodeDescription);
+	public function saveCategoryAction(Tx_Yag_Domain_Model_Category $category, $categoryTitle, $categoryDescription) {
+		$category->setName($categoryTitle);
+		$category->setDescription($categoryDescription);
 	}
 	
 	
 	
 	/**
-	 * Add a new node to the tree
+	 * Add a new category to the tree
 	 *
 	 * @param integer $parentNodeId
 	 * @param string $nodeTitle
 	 * @param string $nodeDescription
 	 * @dontvalidate
 	 */
-	public function addNodeAction($parentNodeId, $nodeTitle, $nodeDescription) {
+	public function addCategoryAction($parentNodeId, $nodeTitle, $nodeDescription) {
 		$parentCategory = $this->categoryRepository->findByUid($parentNodeId);
 		
 		if($parentCategory !== NULL) {
@@ -143,8 +142,8 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 * 
 	 * @param integer $nodeId
 	 */
-	public function removeNodeAction($nodeId) {
-		$CategoryToDelete = $this->categoryRepository->findByUid($nodeId);
+	public function removeCategoryAction($nodeId) {
+		$categoryToDelete = $this->categoryRepository->findByUid($nodeId);
 		// Wie werden Kategorien gelöscht?
 	}
 }
