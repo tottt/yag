@@ -97,24 +97,7 @@ Here is a list of objects / variables that can be accessed in this template:
 				    	var selectedItem = yagCategoryTree.getSelectionModel().getSelectedNode();
 						
 						if(selectedItem){
-							
-							Ext.Ajax.request({
-						        url:'ajax.php',
-						        params: {
-									id: Ext.getUrlParam('id'),
-									ajaxID: 'yagAjaxDispatcher',
-						        	request: Ext.encode(
-								        	buildRequest('removeNode',{
-								        		nodeId: selectedItem.id,
-									        }))
-								},
-						        success:function(response, request) {
-									selectedItem.remove();
-						        },
-						        failure:function() {
-						            alert("Error while deleting the Category.");
-						        }
-						    });
+							alert(selectedItem.attributes.description);							
 						}
 			    	}
 		    	}, {
@@ -168,7 +151,6 @@ Here is a list of objects / variables that can be accessed in this template:
 					    var form = new Ext.form.FormPanel({
 					        baseCls: 'x-plain',
 					        labelWidth: 55,
-					        url: 'save-form.php',
 					        layout: {
 					            type: 'vbox',
 					            align: 'stretch'  // Child items are stretched to full width
@@ -178,14 +160,16 @@ Here is a list of objects / variables that can be accessed in this template:
 					        },
 	
 					        items: [{
+					        	xtype: 'label',
+					        	text: 'Name:'
+					        },{
 					        	xtype: 'textfield',
-					        	fieldLabel: 'Name',
-					            fieldLabel: 'Subject',
 					            name: 'name'
-					        }, {
+					        },{
+					        	xtype: 'label',
+					        	text: 'Description:'
+					        },{
 					            xtype: 'textarea',
-					            fieldLabel: 'Description',
-					            hideLabel: true,
 					            name: 'description',
 					            flex: 1  // Take up all *remaining* vertical space
 					        }]
