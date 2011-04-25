@@ -154,6 +154,7 @@ class Tx_Yag_Utility_Ajax_Dispatcher {
 
 		if($request) {
 			$this->setRequestArgumentsFromJSON($request);
+			$this->setRequestArgumentsFromGetPost();
 		}
 		
 		$this->extensionName 	= $this->requestArguments['extensionName'];
@@ -186,8 +187,11 @@ class Tx_Yag_Utility_Ajax_Dispatcher {
 	 * 
 	 * @param array $request
 	 */
-	protected function setRequestArgumentsFromGetPost($request) {
-		t3lib_div::array_merge_recursive_overrule($this->requestArguments, $request);
+	protected function setRequestArgumentsFromGetPost() {
+		$validArguments = array('extensionName','pluginName','controllerName','actionName','arguments');
+		foreach($validArguments as $argument) {
+			if(t3lib_div::_GP($argument)) $this->requestArguments[$argument] = t3lib_div::_GP($argument);
+		}
 	}
 }
 ?>
