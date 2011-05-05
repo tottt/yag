@@ -91,6 +91,15 @@ class Tx_Yag_Domain_Model_Gallery extends Tx_Extbase_DomainObject_AbstractEntity
     
     
     /**
+     * The category of this album
+     *
+     * @var Tx_Yag_Domain_Model_Category
+     */
+    protected $category;
+    
+    
+    
+    /**
      * Holds an album which is used as thumbnail for gallery
      * 
      * @lazy
@@ -271,6 +280,29 @@ class Tx_Yag_Domain_Model_Gallery extends Tx_Extbase_DomainObject_AbstractEntity
      */
     public function getAlbums() {
         return $this->albums;
+    }
+   
+    
+    
+    /**
+     * Setter for category
+     *
+     * @param Tx_Yag_Domain_Model_Category $category
+     * @return void
+     */
+    public function setCategory(Tx_Yag_Domain_Model_Item $category) {
+        $this->category = $category;
+    }
+    
+    
+
+    /**
+     * Getter for category
+     *
+     * @return Tx_Yag_Domain_Model_Category 
+     */
+    public function getCategory() {
+        	return $this->category;
     }
     
     

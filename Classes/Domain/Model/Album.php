@@ -119,14 +119,21 @@ class Tx_Yag_Domain_Model_Album extends Tx_Extbase_DomainObject_AbstractEntity {
      */
     protected $hide;
     
-    
-    
+	
     /**
      * Sorting of album in gallery
      *
      * @var int
      */
     protected $sorting;
+    
+    
+    /**
+     * The category of this album
+     *
+     * @var Tx_Yag_Domain_Model_Category
+     */
+    protected $category;
     
     
 
@@ -391,7 +398,30 @@ class Tx_Yag_Domain_Model_Album extends Tx_Extbase_DomainObject_AbstractEntity {
     }
     
     
+
+    /**
+     * Setter for category
+     *
+     * @param Tx_Yag_Domain_Model_Category $category
+     * @return void
+     */
+    public function setCategory(Tx_Yag_Domain_Model_Item $category) {
+        $this->category = $category;
+    }
     
+    
+
+    /**
+     * Getter for category
+     *
+     * @return Tx_Yag_Domain_Model_Category 
+     */
+    public function getCategory() {
+        	return $this->category;
+    }
+    
+    
+   
     /**
      * Setter for hidden property. If set to 1, album won't be displayed in frontend
      *

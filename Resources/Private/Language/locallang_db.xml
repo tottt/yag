@@ -17,12 +17,15 @@
 			<label index="tx_yag_domain_model_album.gallery">Gallery</label>
 			<label index="tx_yag_domain_model_album.thumb">Thumbnail</label>
 			<label index="tx_yag_domain_model_album.hide">Hide</label>
+			<label index="tx_yag_domain_model_album.category">Category</label>
+			
 			<label index="tx_yag_domain_model_gallery">Gallery</label>
 			<label index="tx_yag_domain_model_gallery.name">Name</label>
 			<label index="tx_yag_domain_model_gallery.description">Description</label>
 			<label index="tx_yag_domain_model_gallery.albums">Albums</label>
 			<label index="tx_yag_domain_model_gallery.sorting">Sorting</label>
 			<label index="tx_yag_domain_model_gallery.date">Date</label>
+			<label index="tx_yag_domain_model_gallery.category">Category</label>
 			
 			<label index="tx_yag_domain_model_item.thumb_album">Thumbnail Album</label>
 			<label index="tx_yag_domain_model_item">Item</label>

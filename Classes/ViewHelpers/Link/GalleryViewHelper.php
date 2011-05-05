@@ -46,7 +46,7 @@ class Tx_Yag_ViewHelpers_Link_GalleryViewHelper extends Tx_PtExtlist_ViewHelpers
         if ($galleryUid === null) {
             $galleryUid = $gallery->getUid();
         }
-       
+
         $namespace =  Tx_Yag_Domain_Context_YagContextFactory::getInstance()->getObjectNamespace().'.galleryUid';
 		$arguments = Tx_PtExtlist_Utility_NameSpace::saveDataInNamespaceTree($namespace, array(), $galleryUid);
         Tx_PtExtlist_Domain_StateAdapter_SessionPersistenceManagerFactory::getInstance()->addSessionRelatedArguments($arguments);
