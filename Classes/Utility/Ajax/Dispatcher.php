@@ -50,10 +50,12 @@ class Tx_Yag_Utility_Ajax_Dispatcher {
 	protected $objectManager;
 	
 	
+	
 	/**
 	 * @var string
 	 */
 	protected $extensionName;
+	
 	
 	
 	/**
@@ -62,16 +64,19 @@ class Tx_Yag_Utility_Ajax_Dispatcher {
 	protected $pluginName;
 	
 	
+	
 	/**
 	 * @var string
 	 */
 	protected $controllerName;
 	
 	
+	
 	/**
 	 * @var string
 	 */
 	protected $actionName;
+	
 	
 	
 	/**
@@ -104,16 +109,24 @@ class Tx_Yag_Utility_Ajax_Dispatcher {
 		$dispatcher->dispatch($request, $response);
 
 		$response->sendHeaders();
+		// TODO this should be removed, I think
 		echo $response->getContent();
 		
 		$this->cleanShutDown();
 	}
 
 	
+	
+	/**
+	 * We have to do some persisting when shuttind down Dispatcher
+	 * 
+	 * TODO what about session persistence here?
+	 */
 	protected function cleanShutDown() {
 		$this->objectManager->get('Tx_Extbase_Persistence_Manager')->persistAll();
 		$this->objectManager->get('Tx_Extbase_Reflection_Service')->shutdown();
 	}
+	
 	
 	
 	/**
@@ -193,5 +206,7 @@ class Tx_Yag_Utility_Ajax_Dispatcher {
 			if(t3lib_div::_GP($argument)) $this->requestArguments[$argument] = t3lib_div::_GP($argument);
 		}
 	}
+	
 }
+
 ?>

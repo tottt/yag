@@ -50,6 +50,7 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	}
 	
 	
+	
 	/**
 	 * TODO test method
 	 */
@@ -146,5 +147,7 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 		$categoryToDelete = $this->categoryRepository->findByUid($nodeId);
 		// Wie werden Kategorien gelöscht?
 	}
+	
 }
+
 ?>

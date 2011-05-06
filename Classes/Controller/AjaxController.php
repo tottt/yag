@@ -265,8 +265,6 @@ class Tx_Yag_Controller_AjaxController extends Tx_Yag_Controller_AbstractControl
 	public function updateAlbumTitleAction($albumUid, $albumTitle) {
 		// We do this for escaping reasons
 		$album = $this->albumRepository->findByUid(intval($albumUid));
-		// Due to ExtBase issues - we have to use ugly SQL
-		// see http://forge.typo3.org/issues/9270
 		$album->setTitle($albumTitle);
 		$this->albumRepository->update($album);
 		$this->returnDataAndShutDown();
@@ -286,8 +284,6 @@ class Tx_Yag_Controller_AjaxController extends Tx_Yag_Controller_AbstractControl
 	public function updateAlbumDescriptionAction($albumUid, $albumDescription) {
 		// We do this for escaping reasons
 		$album = $this->albumRepository->findByUid($albumUid);
-		// Due to ExtBase issues - we have to use ugly SQL
-        // see http://forge.typo3.org/issues/9270
         $album->setDescription($albumDescription);
         $this->albumRepository->update($album);
         $this->returnDataAndShutDown();
