@@ -72,6 +72,12 @@ Ext.onReady(function(){
 	    containerScroll: true,
 	    rootVisible: true,
 	    loader: Tree_Category_Loader,
+	    listeners: {
+	        click: 	function (node,event){
+				Ext.get("selectedCategory").set({value: node.id});
+			}
+		},
+
 	    tbar : [{
 		    	xtype : 'button' , text : 'Delete', 
 				handler : function(){ 

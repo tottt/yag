@@ -405,7 +405,7 @@ class Tx_Yag_Domain_Model_Album extends Tx_Extbase_DomainObject_AbstractEntity {
      * @param Tx_Yag_Domain_Model_Category $category
      * @return void
      */
-    public function setCategory(Tx_Yag_Domain_Model_Item $category) {
+    public function setCategory(Tx_Yag_Domain_Model_Category $category) {
         $this->category = $category;
     }
     
