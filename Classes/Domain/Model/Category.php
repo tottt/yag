@@ -26,6 +26,26 @@
 
 /**
  * Class implements Category domain object
+ * 
+ * Categories are implemented via nested sets. Each category has a left and a right number, given
+ * by a depth-first treewalk through the category tree. Left is the number of first visit when traversing the tree, 
+ * right is the number of last visit when traversing the tree.
+ * 
+ * You can now do some simple selects, when processing queries on category tree:
+ * 
+ * 1. Select all subcategories from category with left = LEFT and right = RIGHT:
+ *    ... WHERE subcategories.left > category.left AND subcategories.right < category.RIGHT
+ * 
+ * 2. Number of subcategories
+ *    ... COUNT(*) ... WHERE --> see above
+ * 
+ * For a detailed explanation of what's possible with nested sets see http://www.klempert.de/nested_sets/
+ * 
+ * 
+ * The tricky part here is covering this functionality with standard Extbase persistence stuff. Therefore
+ * we have kind of a advanced repository which handles setting up nested category object-structure from
+ * flat SQL response.
+ * 
  *
  * @package Domain
  * @subpackage Model
@@ -100,12 +120,22 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     /**
      * The constructor.
      *
+     * @param string $name Name of category
+     * @param string $description Description of category
      * @return void
      */
-    public function __construct() {
+    public function __construct($name = '', $description = '') {
         //Do not remove the next line: It would break the functionality
         $this->initStorageObjects();
         
+    	if ($name != '') {
+    		$this->name = $name;
+    	}
+    	
+    	if ($description != '') {
+    		$this->description = $description;
+    	}
+    	
         // We initialize lft and rgt as those values will be overwritten later, if this is not the root node
         $this->lft = 1;
         $this->rgt = 2;
@@ -124,6 +154,10 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     
     
 
+    /*********************************************************************************************************
+     * Default getters and setters used for persistence - return database values, no objects!
+     *********************************************************************************************************/
+    
     /**
      * Setter for name
      *
@@ -171,7 +205,7 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     
     
     /**
-     * Getter for root category
+     * Getter for root category id
      *
      * @return int
      */
@@ -182,7 +216,7 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     
     
     /**
-     * Setter for root category
+     * Setter for root category id
      *
      * @param int $root
      */
@@ -236,6 +270,11 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     
     
     
+    /*********************************************************************************************************
+     * Getters and setters for advanced domain logic. NOT USED FOR PERSISTENCE!
+     *********************************************************************************************************/
+    
+    
     /**
      * Setter for parent category
      *
@@ -262,13 +301,104 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     
     
     /**
+     * Getter for child categories
+     *
+     * @return Tx_Extbase_Persistence_ObjectStorage
+     */
+    public function getChildren() {
+    	return $this->children;
+    }
+    
+    
+    
+    /**
+     * Get count of children recursively
+     *
+     * @return int
+     */
+    public function getChildrenCount() {
+    	/**
+    	 * We can use traversal numbers of tree to 
+    	 * determine number of children:
+    	 * 
+    	 * #children = (node.right - node.left - 1) / 2
+    	 */
+    	return ($this->rgt - $this->lft - 1) / 2;
+    }
+    
+    
+    
+    /**
+     * Returns level of category (0 if category is root). 
+     * 
+     * Level is equal to depth
+     * of category in tree where root has depth 0.
+     *
+     * @return int
+     */
+    public function getLevel() {
+        if ($this->parent == null) {
+            return 0;
+        } else {
+            return 1 + $this->parent->getLevel();
+        }
+    }
+    
+    
+    
+    /**
+     * Returns sub-categories in a flat list. The result is ordered 
+     * in such a way that it reflects the structure of the tree:
+     * 
+     * cat 1
+     * - cat 1.1
+     * -- cat 1.1.1
+     * -- cat 1.1.2
+     * - cat 1.2
+     * -- cat 1.2.1
+     * -- cat 1.2.2
+     * 
+     * Will return 
+     * 
+     * cat 1
+     * cat 1.1
+     * cat 1.1.1
+     * cat 1.1.2
+     * cat 1.2
+     * cat 1.2.1
+     * cat 1.2.2
+     *
+     * @return Tx_Extbase_Persistence_ObjectStorage
+     */
+    public function getSubCategories() {
+        $subCategories = new Tx_Extbase_Persistence_ObjectStorage();
+        if ($this->children->count() > 0) {
+           foreach ($this->children as $child) {
+               $subCategories->attach($child);
+               $subCategories->addAll($child->getSubCategories());
+           }
+        }
+        return $subCategories;
+    }
+    
+    
+    
+    /*********************************************************************************************************
+     * Domain logic
+     *********************************************************************************************************/
+    
+    /**
      * Adds a child category to children at end of children
      *
      * @param Tx_Yag_Domain_Model_Category $category
      * @param bool $updateLeftRight
      */
     public function addChild(Tx_Yag_Domain_Model_Category $category, $updateLeftRight = true) {
-    	if ($this->children == null) $this->children = new Tx_Extbase_Persistence_ObjectStorage();
+    	// TODO this should not be necessary. Seems like this method is not invoked, if object is loaded from database
+    	if (is_null($this->children)) {
+    		$this->children = new Tx_Extbase_Persistence_ObjectStorage();
+    	}
+    	
     	$this->children->attach($category);
     	$category->parent = $this;
     	if ($updateLeftRight) $this->updateLeftRight();
@@ -287,8 +417,8 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     	$newChildren = new Tx_Extbase_Persistence_ObjectStorage();
     	foreach ($this->children as $child) {
     		$newChildren->attach($child);
-    		if ($child->getId() == $categoryToAddAfter->getId()) {
-    			$newChildren->add($newChildCategory);
+    		if ($child == $categoryToAddAfter) {
+    			$newChildren->attach($newChildCategory);
     		}
     	}
     	$this->children = $newChildren;
@@ -305,12 +435,12 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      * @param bool $updateLeftRight
      */
     public function addChildBefore(Tx_Yag_Domain_Model_Category $newChildCategory, Tx_Yag_Domain_Model_Category $categoryToAddBefore, $updateLeftRight = true) {
-    	$newChildren = Tx_Extbase_Persistence_ObjectStorage();
+    	$newChildren = new Tx_Extbase_Persistence_ObjectStorage();
     	foreach($this->children as $child) {
-    		if ($child->getId() == $categoryToAddBefore->getId()) {
+    		if ($child == $categoryToAddBefore) {
     			$newChildren->attach($newChildCategory);
     		}
-    		$newChildren->add($child);
+    		$newChildren->attach($child);
     	}
     	$this->children = $newChildren;
     	if ($updateLeftRight) $this->updateLeftRight();
@@ -327,17 +457,6 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     public function removeChild(Tx_Yag_Domain_Model_Category $child, $updateLeftRight = true) {
     	$this->children->detach($child);
     	if ($updateLeftRight) $this->updateLeftRight(); 
-    }
-    
-    
-    
-    /**
-     * Getter for child categories
-     *
-     * @return Tx_Extbase_Persistence_ObjectStorage
-     */
-    public function getChildren() {
-    	return $this->children;
     }
     
     
@@ -372,56 +491,7 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      * @return bool
      */
     public function hasChildren() {
-    	return $this->getChildrenCount() > 0;
-    }
-    
-    
-    
-    /**
-     * Get count of children recursively
-     *
-     * @return int
-     */
-    public function getChildrenCount() {
-    	$count = 0;
-    	foreach ($this->children as $child) {
-    		$count++;
-    		$count += $child->getChildrenCount();
-    	}
-    	return $count;
-    }
-    
-    
-    
-    /**
-     * Returns level of category (0 if category is root)
-     *
-     * @return int
-     */
-    public function getLevel() {
-    	if ($this->parent == null) {
-    		return 0;
-    	} else {
-    		return 1 + $this->parent->getLevel();
-    	}
-    }
-    
-    
-    
-    /**
-     * Returns sub-categories in a flat list
-     *
-     * @return Tx_Extbase_Persistence_ObjectStorage
-     */
-    public function getSubCategories() {
-    	$subCategories = new Tx_Extbase_Persistence_ObjectStorage();
-    	if ($this->children->count() > 0) {
-    	   foreach ($this->children as $child) {
-    	   	   $subCategories->attach($child);
-    	   	   $subCategories->addAll($child->getSubCategories());
-    	   }
-    	}
-    	return $subCategories;
+    	return ($this->children != null && $this->children->count() > 0);
     }
     
 }

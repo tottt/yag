@@ -106,6 +106,8 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	public function saveCategoryAction(Tx_Yag_Domain_Model_Category $category, $categoryTitle, $categoryDescription) {
 		$category->setName($categoryTitle);
 		$category->setDescription($categoryDescription);
+		$this->categoryRepository->update($category);
+		$this->objectManager->get('Tx_Extbase_Persistence_Manager')->persistAll();
 	}
 	
 	
@@ -120,7 +122,6 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 */
 	public function addCategoryAction($parentNodeId, $nodeTitle, $nodeDescription) {
 		$parentCategory = $this->categoryRepository->findByUid($parentNodeId);
-		
 		if($parentCategory !== NULL) {
 			$newCategory = new Tx_Yag_Domain_Model_Category();
 			$newCategory->setRoot($parentCategory);

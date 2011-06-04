@@ -169,6 +169,71 @@ class Tx_Yag_Tests_Domain_Model_CategoryTest extends Tx_Yag_Tests_BaseTestCase {
         
         $this->assertEquals(2, $childCategory2->getLevel());
     }
+    
+    
+    
+    /** @test */
+    public function getSubCategoriesReturnsSubCategoriesInCorrectOrder() {
+    	$parentCategory = new Tx_Yag_Domain_Model_Category('1');
+        $childCategory1 = new Tx_Yag_Domain_Model_Category('1.1');
+        $childCategory2 = new Tx_Yag_Domain_Model_Category('1.1.1');
+        $childCategory3 = new Tx_Yag_Domain_Model_Category('1.2');
+        $childCategory4 = new Tx_Yag_Domain_Model_Category('1.2.1');
+        $childCategory5 = new Tx_Yag_Domain_Model_Category('1.2.2');
+        
+        $childCategory3->addChild($childCategory4);
+        $childCategory3->addChild($childCategory5);
+        
+        $childCategory1->addChild($childCategory2);
+        
+        $parentCategory->addChild($childCategory1);
+        $parentCategory->addChild($childCategory3);
+        
+        $subCategories = $parentCategory->getSubCategories()->toArray();
+        $this->assertEquals($subCategories[0], $childCategory1);
+        $this->assertEquals($subCategories[1], $childCategory2);
+        $this->assertEquals($subCategories[2], $childCategory3);
+        $this->assertEquals($subCategories[3], $childCategory4);
+        $this->assertEquals($subCategories[4], $childCategory5);
+    }
+    
+    
+    
+    /** @test */
+    public function addChildBeforeAddsChildBeforeGivenChild() {
+    	$child1 = new Tx_Yag_Domain_Model_Category('1.1'); 
+    	$child2 = new Tx_Yag_Domain_Model_Category('1.2');
+    	$child3 = new Tx_Yag_Domain_Model_Category('1.3');
+    	$parent = new Tx_Yag_Domain_Model_Category('1');
+    	
+    	$parent->addChild($child1);
+    	$parent->addChildBefore($child2, $child1);
+    	$parent->addChildBefore($child3, $child1);
+    	
+    	$children = $parent->getChildren()->toArray();
+    	$this->assertEquals($children[0], $child2);
+    	$this->assertEquals($children[1], $child3);
+    	$this->assertEquals($children[2], $child1);
+    }
+    
+    
+    
+    /** @test */
+    public function addChildAfterAddChildAfterGivenChild() {
+    	$child1 = new Tx_Yag_Domain_Model_Category('1.1');
+        $child2 = new Tx_Yag_Domain_Model_Category('1.2');
+        $child3 = new Tx_Yag_Domain_Model_Category('1.3');
+        $parent = new Tx_Yag_Domain_Model_Category('1');
+        
+        $parent->addChild($child1);
+        $parent->addChildAfter($child2, $child1);
+        $parent->addChildAfter($child3, $child1);
+        
+        $children = $parent->getChildren()->toArray();
+        $this->assertEquals($children[0], $child1);
+        $this->assertEquals($children[1], $child3);
+        $this->assertEquals($children[2], $child2);
+    }
 	
 }
 
