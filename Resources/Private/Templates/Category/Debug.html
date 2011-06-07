@@ -1,0 +1,28 @@
+<h2>Debugging & Testing</h2>
+
+<h3>Remove Node by UID</h3>
+<f:form method="post" name="removeCategory" controller="Category" action="removeCategory">
+    ID of category to be removed: <f:form.textbox name="nodeId" />
+    <f:form.submit value="Remove Category" />
+</f:form>
+
+<h3>Move node into</h3>
+<f:form method="post" name="moveCategoryInto" controller="Category" action="moveInto">
+    ID of node to be moved: <f:form.textbox name="movedNodeId" />
+    ID to move node into: <f:form.textbox name="targetNodeId" />
+    <f:form.submit value="Move Node" />
+</f:form>
+
+<h3>Move node after</h3>
+<f:form method="post" name="moveCategoryAfter" controller="Category" action="moveCategoryAfter">
+    ID of node to be moved: <f:form.textbox name="movedNodeId" />
+    ID of node to move category after: <f:form.textbox name="targetNodeId" />
+    <f:form.submit value="Move Node" />
+</f:form>
+
+<h3>Move node before</h3>
+<f:form method="post" name="moveCategoryBefore" controller="Category" action="moveCategoryBefore">
+    ID of node to be moved: <f:form.textbox name="movedNodeId" />
+    ID of node to move category before: <f:form.textbox name="targetNodeId" />
+    <f:form.submit value="Move Node" />
+</f:form>

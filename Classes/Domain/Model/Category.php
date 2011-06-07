@@ -46,6 +46,11 @@
  * we have kind of an advanced repository which handles setting up nested category object-structure from
  * flat SQL table response.
  * 
+ * 
+ * Some conventions:
+ * 
+ * 1. Root: Every category has a root. If root == UID, then category is root.
+ * 
  *
  * @package Domain
  * @subpackage Model
@@ -372,7 +377,7 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      */
     public function getSubCategories() {
         $subCategories = new Tx_Extbase_Persistence_ObjectStorage();
-        if ($this->children->count() > 0) {
+        if ($this->children !== null && $this->children->count() > 0) {
            foreach ($this->children as $child) {
                $subCategories->attach($child);
                $subCategories->addAll($child->getSubCategories());
@@ -492,6 +497,17 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      */
     public function hasChildren() {
     	return ($this->children != null && $this->children->count() > 0);
+    }
+    
+    
+    
+    /**
+     * Returns true, if category is root
+     *
+     * @return boolean True, if category is root
+     */
+    public function isRoot() {
+    	return $this->uid == $this->root;
     }
     
 }

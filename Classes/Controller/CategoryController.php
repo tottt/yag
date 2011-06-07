@@ -81,6 +81,15 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	
 	
 	/**
+	 * TODO test method
+	 */
+	public function debugAction() {
+		
+	}
+	
+	
+	
+	/**
 	 * Get trees under the given tree
 	 */
 	public function getSubTreeAction() {
@@ -154,6 +163,7 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 * Remove Node and subnodes from tree
 	 * 
 	 * @param int $nodeId
+	 * @return string Rendered response
 	 */
 	public function removeCategoryAction($nodeId) {
 		$categoryToDelete = $this->categoryRepository->findByUid($nodeId);
@@ -167,10 +177,19 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	/**
 	 * Moves category given by ID into category given by ID
 	 * 
+	 * This action can be used for a drag'n'drop of a category "onto" another category.
+	 * 
 	 * @param int $movedNodeId ID of node that is moved
 	 * @param int $targetNodeId ID of category where moved node should be put into
+	 * @return string Rendered response
 	 */
 	public function moveCategoryIntoAction($movedNodeId, $targetNodeId) {
+		
+		/*
+		 * Warning - this is not yet working! We need to update the whole tree for that
+		 * but only get the tree downward from the node requested from repository
+		 */ 
+		
 		$movedCategory = $this->categoryRepository->findByUid($movedNodeId);    /* @var $movedCategory Tx_Yag_Domain_Model_Category */
 		$targetCategory = $this->categoryRepository->findByUid($targetNodeId);  /* @var $targetCategory Tx_Yag_Domain_Model_Category */
 		$targetCategory->addChild($movedCategory);
@@ -186,9 +205,16 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 *
 	 * @param int $movedNodeId ID of the category that was moved
 	 * @param int $targetNodeId ID of the category where moved category should be put before
+	 * @return string Rendered response
 	 */
 	public function moveCategoryAfterAction($movedNodeId, $targetNodeId) {
-		$movedCategory = $this->categoryRepository->findByUid($movedNodeId);    /* @var $movedCategory Tx_Yag_Domain_Model_Category */
+		
+        /*
+         * Warning - this is not yet working! We need to update the whole tree for that
+         * but only get the tree downward from the node requested from repository
+         */ 
+        
+        $movedCategory = $this->categoryRepository->findByUid($movedNodeId);    /* @var $movedCategory Tx_Yag_Domain_Model_Category */
         $targetCategory = $this->categoryRepository->findByUid($targetNodeId);  /* @var $targetCategory Tx_Yag_Domain_Model_Category */
 
         $movedCategory->getParent()->removeChild($movedCategory);
@@ -205,9 +231,16 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 *
 	 * @param int $movedNodeId ID of node that was moved
 	 * @param int $targetNodeId ID of category where moved category should be put after
+	 * @return string Rendered response
 	 */
 	public function moveCategoryBeforeAction($movedNodeId, $targetNodeId) {
-		$movedCategory = $this->categoryRepository->findByUid($movedNodeId);    /* @var $movedCategory Tx_Yag_Domain_Model_Category */
+		
+        /*
+         * Warning - this is not yet working! We need to update the whole tree for that
+         * but only get the tree downward from the node requested from repository
+         */ 
+        
+        $movedCategory = $this->categoryRepository->findByUid($movedNodeId);    /* @var $movedCategory Tx_Yag_Domain_Model_Category */
         $targetCategory = $this->categoryRepository->findByUid($targetNodeId);  /* @var $targetCategory Tx_Yag_Domain_Model_Category */
 
         $movedCategory->getParent()->removeChild($movedCategory);

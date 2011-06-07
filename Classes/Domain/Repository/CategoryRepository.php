@@ -130,16 +130,72 @@ class Tx_Yag_Domain_Repository_CategoryRepository extends Tx_Yag_Domain_Reposito
 	 * @param Tx_Yag_Domain_Model_Category $category Category to be removed
 	 */
 	public function remove($category) {
-		// We get sub categories...
-		$categoriesToBeRemoved = $category->getSubCategories();
 		
-		// ... and delete them
-		foreach($categoriesToBeRemoved as $categoryToBeRemoved) {
-			parent::remove($categoryToBeRemoved);
+		/*
+		 * WARNING Whenever this goes productive, we have to make sure, 
+		 * that the category table is write locked, while we
+		 * do the following three queries!
+		 */
+		
+		// We delete all database records that are no longer required
+		$this->deleteCategory($category);
+		
+		// We update object structure
+		if (!$category->isRoot()) {
+			/**
+			 * What happens here:
+			 * 
+			 * If we delete a node from the tree, there will be a "gap" in the lft - rgt numbers. We "fill" this gap by
+			 * subtracting the difference (rgt - lft + 1)
+			 * 1. from nodes rgt & lft number if node has a bigger lft number than deleted node
+			 * 2. from nodes rgt number, if node has a smaller lft and a bigger rgt number than deleted node
+			 * then the node we want to delete.
+			 * Afterwards, everything is fine again.
+			 */
+			$left = $category->getLft();
+			$right = $category->getRgt();
+			$difference = intval($right - $left + 1);
+			
+			// We update case 1. from above
+			$query1 = "UPDATE tx_yag_domain_model_category " . 
+			          "SET lft = lft - " . $difference . ", rgt = rgt - " . $difference . " " . 
+			          "WHERE root = " . $category->getRoot() . " " .
+			          "AND lft > " . $category->getLft();
+			#echo "Update 1: " . $query1;
+            $extQuery1 = $this->createQuery();
+            $extQuery1->getQuerySettings()->setReturnRawQueryResult(true); // Extbase WTF
+            $extQuery1->statement($query1)->execute();
+            
+			// We update case 2. from above
+			$query2 = "UPDATE tx_yag_domain_model_category " . 
+			          "SET rgt = rgt - " . $difference . " " .
+			          "WHERE root = " . $category->getRoot() . " " .
+			          "AND lft < " . $category->getLft() . " " .
+			          "AND rgt > " . $category->getRgt();
+			#echo "Update 2: " . $query2;
+            $extQuery2 = $this->createQuery();
+            $extQuery2->getQuerySettings()->setReturnRawQueryResult(true); // Extbase WTF
+            $extQuery2->statement($query2)->execute();
 		}
-		
-		// remove category itself
-		parent::remove($category);
+	}
+	
+	
+	
+	/**
+	 * Hard-deletes a category and its subcategories from database.
+	 * No deleted=1 is set, categories are really deleted!
+	 *
+	 * @param Tx_Yag_Domain_Model_Category $category
+	 */
+	protected function deleteCategory(Tx_Yag_Domain_Model_Category $category) {
+        $left = $category->getLft();
+        $right = $category->getRgt();
+        
+        $query = "DELETE FROM tx_yag_domain_model_category WHERE lft >= " . $left . " AND rgt <= " . $right;
+        #echo "DELTE query: " . $query;
+        $extQuery = $this->createQuery();
+        $extQuery->getQuerySettings()->setReturnRawQueryResult(true); // Extbase WTF
+        $extQuery->statement($query)->execute();
 	}
 	
 	
