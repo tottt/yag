@@ -71,6 +71,7 @@ Tx_Extbase_Utility_Extension::configurePlugin(
         'Setup' => 'index, setupRbac,truncateTables',
         'AdminMenu' => 'index',
 		'Error' => 'index',
+        'Category' => 'show,getSubTree,addCategory,saveCategory,removeCategory,moveCategoryBefore,moveCategoryAfter,moveCategoryInto',
 	)
 );
 
