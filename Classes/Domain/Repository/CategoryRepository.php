@@ -131,14 +131,7 @@ class Tx_Yag_Domain_Repository_CategoryRepository extends Tx_Yag_Domain_Reposito
 	 */
 	public function remove(Tx_Yag_Domain_Model_Category $category) {
 		// We get sub categories...
-		$removalQuery = $this->createQuery();
-		$removalQuery->matching(
-		    $removalQuery->logicalAnd(
-		        $removalQuery->lessThan($category->getRgt()), 
-		        $removalQuery->greaterThan($category->getLft())
-		    )
-		);
-		$categoriesToBeRemoved = $removalQuery->execute();
+		$categoriesToBeRemoved = $category->getSubCategories();
 		
 		// ... and delete them
 		foreach($categoriesToBeRemoved as $categoryToBeRemoved) {
