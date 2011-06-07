@@ -37,6 +37,15 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 * @var Tx_Yag_Domain_Repository_CategoryRepository
 	 */
 	protected $categoryRepository;
+	
+	
+	
+	/**
+	 * Holds an instance of persistence manager
+	 *
+	 * @var Tx_Extbase_Persistence_Manager
+	 */
+	protected $persistenceManager;
 
 	
 	
@@ -47,6 +56,7 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 */
 	protected function postInitializeAction() {
 		$this->categoryRepository = t3lib_div::makeInstance('Tx_Yag_Domain_Repository_CategoryRepository');
+		$this->persistenceManager = t3lib_div::makeInstance('Tx_Extbase_Persistence_Manager');
 	}
 	
 	
@@ -146,7 +156,9 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 */
 	public function removeCategoryAction($nodeId) {
 		$categoryToDelete = $this->categoryRepository->findByUid($nodeId);
-		// Wie werden Kategorien gelöscht?
+		// Wie werden Kategorien gelöscht? --> so:
+		$this->categoryRepository->remove($categoryToDelete);
+		$this->persistenceManager->persistAll();
 	}
 	
 }

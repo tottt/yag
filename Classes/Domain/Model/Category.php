@@ -27,7 +27,7 @@
 /**
  * Class implements Category domain object
  * 
- * Categories are implemented via nested sets. Each category has a left and a right number, given
+ * Categories are implemented as nested sets. Each category has a left and a right number, given
  * by a depth-first treewalk through the category tree. Left is the number of first visit when traversing the tree, 
  * right is the number of last visit when traversing the tree.
  * 
@@ -43,8 +43,8 @@
  * 
  * 
  * The tricky part here is covering this functionality with standard Extbase persistence stuff. Therefore
- * we have kind of a advanced repository which handles setting up nested category object-structure from
- * flat SQL response.
+ * we have kind of an advanced repository which handles setting up nested category object-structure from
+ * flat SQL table response.
  * 
  *
  * @package Domain
