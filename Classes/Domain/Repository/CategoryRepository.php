@@ -129,7 +129,7 @@ class Tx_Yag_Domain_Repository_CategoryRepository extends Tx_Yag_Domain_Reposito
 	 *
 	 * @param Tx_Yag_Domain_Model_Category $category Category to be removed
 	 */
-	public function remove(Tx_Yag_Domain_Model_Category $category) {
+	public function remove($category) {
 		// We get sub categories...
 		$categoriesToBeRemoved = $category->getSubCategories();
 		
