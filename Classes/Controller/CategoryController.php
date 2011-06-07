@@ -125,7 +125,7 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	/**
 	 * Add a new category to the tree
 	 *
-	 * @param integer $parentNodeId
+	 * @param int $parentNodeId
 	 * @param string $nodeTitle
 	 * @param string $nodeDescription
 	 * @dontvalidate
@@ -145,6 +145,7 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 			$this->objectManager->get('Tx_Extbase_Persistence_Manager')->persistAll();
 			return $newCategory->getUid();
 		}
+		// TODO add error-handling, if parentCategory = null or an error occured
 	}
 	
 	
@@ -152,13 +153,68 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	/**
 	 * Remove Node and subnodes from tree
 	 * 
-	 * @param integer $nodeId
+	 * @param int $nodeId
 	 */
 	public function removeCategoryAction($nodeId) {
 		$categoryToDelete = $this->categoryRepository->findByUid($nodeId);
 		// Wie werden Kategorien gelöscht? --> so:
 		$this->categoryRepository->remove($categoryToDelete);
 		$this->persistenceManager->persistAll();
+	}
+	
+	
+	
+	/**
+	 * Moves category given by ID into category given by ID
+	 * 
+	 * @param int $movedNodeId ID of node that is moved
+	 * @param int $targetNodeId ID of category where moved node should be put into
+	 */
+	public function moveCategoryIntoAction($movedNodeId, $targetNodeId) {
+		$movedCategory = $this->categoryRepository->findByUid($movedNodeId);    /* @var $movedCategory Tx_Yag_Domain_Model_Category */
+		$targetCategory = $this->categoryRepository->findByUid($targetNodeId);  /* @var $targetCategory Tx_Yag_Domain_Model_Category */
+		$targetCategory->addChild($movedCategory);
+		$this->categoryRepository->update($movedCategory);
+		$this->categoryRepository->update($targetCategory);
+		$this->persistenceManager->persistAll();
+	}
+	
+	
+	
+	/**
+	 * Moves category given by ID after category given by ID as subcategory of the very same category
+	 *
+	 * @param int $movedNodeId ID of the category that was moved
+	 * @param int $targetNodeId ID of the category where moved category should be put before
+	 */
+	public function moveCategoryAfterAction($movedNodeId, $targetNodeId) {
+		$movedCategory = $this->categoryRepository->findByUid($movedNodeId);    /* @var $movedCategory Tx_Yag_Domain_Model_Category */
+        $targetCategory = $this->categoryRepository->findByUid($targetNodeId);  /* @var $targetCategory Tx_Yag_Domain_Model_Category */
+
+        $movedCategory->getParent()->removeChild($movedCategory);
+        $targetCategory->getParent()->addChildAfter($movedCategory, $targetCategory);
+        
+        $this->categoryRepository->updateTree($targetCategory);
+        $this->persistenceManager->persistAll();
+	}
+	
+	
+	
+	/**
+	 * Moves category given by ID before category given by ID as subcategory of the very same category.
+	 *
+	 * @param int $movedNodeId ID of node that was moved
+	 * @param int $targetNodeId ID of category where moved category should be put after
+	 */
+	public function moveCategoryBeforeAction($movedNodeId, $targetNodeId) {
+		$movedCategory = $this->categoryRepository->findByUid($movedNodeId);    /* @var $movedCategory Tx_Yag_Domain_Model_Category */
+        $targetCategory = $this->categoryRepository->findByUid($targetNodeId);  /* @var $targetCategory Tx_Yag_Domain_Model_Category */
+
+        $movedCategory->getParent()->removeChild($movedCategory);
+        $targetCategory->getParent()->addChildBefore($movedCategory, $targetCategory);
+        
+        $this->categoryRepository->updateTree($targetCategory);
+        $this->persistenceManager->persistAll();
 	}
 	
 }

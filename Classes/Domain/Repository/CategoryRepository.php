@@ -149,6 +149,21 @@ class Tx_Yag_Domain_Repository_CategoryRepository extends Tx_Yag_Domain_Reposito
 		parent::remove($category);
 	}
 	
+	
+	
+	/**
+	 * Updates whole tree for any given category
+	 *
+	 * @param Tx_Yag_Domain_Model_Category $category Category whose tree should be updated
+	 */
+	public function updateTree(Tx_Yag_Domain_Model_Category $category) {
+		$root = $this->findByUid($category->getRoot());
+		$allCategoriesOfTree = $root->getSubCategories();
+		foreach($allCategoriesOfTree as $categoryToBeUpdated) {
+			$this->update($categoryToBeUpdated);
+		}
+	}
+	
 }
 
 ?>
