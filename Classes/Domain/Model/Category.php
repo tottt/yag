@@ -491,6 +491,15 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     
     
     /**
+     * Updates a tree underneath this node
+     */
+    public function updateNode() {
+    	$this->updateLeftRight();
+    }
+    
+    
+    
+    /**
      * Returns true, if category has children
      *
      * @return bool
@@ -502,12 +511,38 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     
     
     /**
+     * Returns true, if category has a parent
+     *
+     * @return bool True, if category has parent category
+     */
+    public function hasParent() {
+    	return !($this->parent === null);
+    }
+    
+    
+    
+    /**
      * Returns true, if category is root
      *
      * @return boolean True, if category is root
      */
     public function isRoot() {
     	return $this->uid == $this->root;
+    }
+    
+    
+    
+    public function toString() {
+    	$categoryString = '<li>(' . $this->uid . ') ' . $this->name;
+    	if ($this->hasChildren()) {
+    		$categoryString .= '<ul>';
+	    	foreach ($this->children as $child) {
+	    		$categoryString .= $child->toString();
+	    	}
+	    	$categoryString .= '</ul>';
+    	}
+    	$categoryString .= '</li>';
+    	return $categoryString;
     }
     
 }
