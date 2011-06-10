@@ -251,9 +251,9 @@ class Tx_Yag_Domain_Model_CategoryTree {
 	 * @param Tx_Yag_Domain_Model_Category $node Node to check for whether it's in the tree
 	 * @param string $errMessage An error message to be displayed, if node is not in tree
 	 */
-	protected function checkForNodeBeingInTree(Tx_Yag_Domain_Model_Category $node, $errMessage = 'Node is not found in current tree! 1307646533') {
+	protected function checkForNodeBeingInTree(Tx_Yag_Domain_Model_Category $node, $errMessage = 'Node is not found in current tree! 1307646533 ') {
 	    if (!array_key_exists($node->getUid(), $this->treeMap)) {
-            throw new Exception($errMessage);
+            throw new Exception($errMessage . ' node UID: ' . $node->getUid() . print_r(array_keys($this->treeMap),true));
         }
 	}
 	

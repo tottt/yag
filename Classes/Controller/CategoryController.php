@@ -177,8 +177,7 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 * @dontvalidate
 	 */
 	public function addCategoryAction($parentNodeId, $nodeTitle='', $nodeDescription='') {
-		die('hier');
-		
+        // this is currently not working, use addNewCategoryAction or fix this (action is not called from debug form - dunno why)
 		$parentCategory = $this->categoryRepository->findByUid($parentNodeId);
 		if($parentCategory !== NULL) {
 			$newCategory = new Tx_Yag_Domain_Model_Category();
@@ -205,10 +204,19 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 * @return string Rendered response
 	 */
 	public function removeCategoryAction($nodeId) {
+		$nodeToBeRemoved = $this->categoryRepository->findByUid($nodeId);
+		$rootNode = $this->categoryRepository->findByUid($nodeToBeRemoved->getRoot());
+		$categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+		$categoryTree->deleteNode($nodeToBeRemoved);
+		$this->categoryRepository->remove($nodeToBeRemoved);
+		$this->categoryTreeRepository->update($categoryTree);
+		$this->persistenceManager->persistAll();
+		/*
 		$categoryToDelete = $this->categoryRepository->findByUid($nodeId);
 		// Wie werden Kategorien gelöscht? --> so:
 		$this->categoryRepository->remove($categoryToDelete);
 		$this->persistenceManager->persistAll();
+        */
 	}
 	
 	
@@ -243,7 +251,7 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	public function moveCategoryAfterAction($movedNodeId, $targetNodeId) {
 		$categoryToBeMoved = $this->categoryRepository->findByUid($movedNodeId);
 		$targetNode = $this->categoryRepository->findByUid($targetNodeId);
-		$categoryTree = $this->categoryTreeRepository->findByRootId($categoryToBeMoved);
+		$categoryTree = $this->categoryTreeRepository->findByRootId($categoryToBeMoved->getRoot());
 		$categoryTree->moveNodeAfterNode($categoryToBeMoved, $targetNode);
 		$this->categoryTreeRepository->update($categoryTree);
 		$this->persistenceManager->persistAll();
@@ -261,7 +269,7 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	public function moveCategoryBeforeAction($movedNodeId, $targetNodeId) {
         $categoryToBeMoved = $this->categoryRepository->findByUid($movedNodeId);
         $targetNode = $this->categoryRepository->findByUid($targetNodeId);
-        $categoryTree = $this->categoryTreeRepository->findByRootId($categoryToBeMoved);
+        $categoryTree = $this->categoryTreeRepository->findByRootId($categoryToBeMoved->getRoot());
         $categoryTree->moveNodeBeforeNode($categoryToBeMoved, $targetNode);
         $this->categoryTreeRepository->update($categoryTree);
         $this->persistenceManager->persistAll();
