@@ -225,7 +225,7 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      *
      * @param int $root
      */
-    public function setRoot(Tx_Yag_Domain_Model_Category $root) {
+    public function setRoot($root) {
     	$this->root = $root;
     }
     
@@ -533,7 +533,7 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     
     
     public function toString() {
-    	$categoryString = '<li>(' . $this->uid . ') ' . $this->name;
+    	$categoryString = '<li>(' . $this->uid . ') ' . $this->name . '[left: ' . $this->lft . '  right:' . $this->rgt . ']';
     	if ($this->hasChildren()) {
     		$categoryString .= '<ul>';
 	    	foreach ($this->children as $child) {

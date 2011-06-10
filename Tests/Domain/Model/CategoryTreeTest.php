@@ -200,6 +200,31 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
         $this->assertFalse($thirdChild->getChildren()->contains($fourthChild));
 	}
 	
+	
+	
+	/** @test */
+	public function insertNodeInsertsNodeInGivenParentNode() {
+		$rootNode = new Tx_Yag_Tests_Domain_Model_CategoryMock(1);
+        $firstChild = new Tx_Yag_Tests_Domain_Model_CategoryMock(2);
+        $secondChild = new Tx_Yag_Tests_Domain_Model_CategoryMock(3);
+        $thirdChild = new Tx_Yag_Tests_Domain_Model_CategoryMock(4);
+        $fourthChild = new Tx_Yag_Tests_Domain_Model_CategoryMock(5);
+        
+        $thirdChild->addChild($fourthChild);
+        $firstChild->addChild($secondChild);
+        $firstChild->addChild($thirdChild);
+        $rootNode->addChild($firstChild);
+        
+        $categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+        
+		$newNode = new Tx_Yag_Domain_Model_Category('test', 'test');
+		
+		$categoryTree->insertNode($newNode, $rootNode);
+		
+		$this->assertEquals($newNode->getParent(), $rootNode);
+		$this->assertTrue($rootNode->getChildren()->contains($newNode));
+	}
+	
 }
 
 

@@ -41,6 +41,15 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	
 	
 	/**
+	 * Holds an instance of category tree repository
+	 *
+	 * @var Tx_Yag_Domain_Repository_CategoryTreeRepository
+	 */
+	protected $categoryTreeRepository;
+	
+	
+	
+	/**
 	 * Holds an instance of persistence manager
 	 *
 	 * @var Tx_Extbase_Persistence_Manager
@@ -56,6 +65,7 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 */
 	protected function postInitializeAction() {
 		$this->categoryRepository = t3lib_div::makeInstance('Tx_Yag_Domain_Repository_CategoryRepository');
+		$this->categoryTreeRepository = new Tx_Yag_Domain_Repository_CategoryTreeRepository();
 		$this->persistenceManager = t3lib_div::makeInstance('Tx_Extbase_Persistence_Manager');
 	}
 	
@@ -84,7 +94,8 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 * TODO test method
 	 */
 	public function debugAction() {
-		
+		$categoryTree = $this->categoryTreeRepository->findByRootId(1);
+		$this->view->assign('categoryList', $categoryTree->toString());
 	}
 	
 	
@@ -122,13 +133,38 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 * @param string $categoryTitle
 	 * @param string $categoryDescription
 	 */
-	public function saveCategoryAction(Tx_Yag_Domain_Model_Category $category, $categoryTitle, $categoryDescription) {
+	public function saveCategoryAction(Tx_Yag_Domain_Model_Category $category, $categoryTitle, $categoryDescription='') {
 		$category->setName($categoryTitle);
 		$category->setDescription($categoryDescription);
 		$this->categoryRepository->update($category);
 		$this->objectManager->get('Tx_Extbase_Persistence_Manager')->persistAll();
 	}
 	
+	
+	/**
+	 * Adds a new category to the tree
+	 *
+	 * @param int $parentNodeId
+	 * @param string $nodeTitle
+	 * @param string $nodeDescription
+	 * @dontvalidate
+	 */
+	public function addNewCategoryAction($parentNodeId, $nodeTitle, $nodeDescription = '') {
+		$parentNode = $this->categoryRepository->findByUid($parentNodeId);
+		$rootNode = $this->categoryRepository->findByUid($parentNode->getRoot());
+		
+		$newNode = new Tx_Yag_Domain_Model_Category($nodeTitle, $nodeDescription);
+		$newNode->setRoot($parentNode->getRoot());
+		$this->categoryRepository->add($newNode);
+		$this->persistenceManager->persistAll();
+		
+		$categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+		$categoryTree->insertNode($newNode, $parentNode);
+		$this->categoryTreeRepository->update($categoryTree);
+		$this->persistenceManager->persistAll();
+		
+		$this->forward('debug');
+	}
 	
 	
 	/**
@@ -137,9 +173,12 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 * @param int $parentNodeId
 	 * @param string $nodeTitle
 	 * @param string $nodeDescription
+	 * @return string Rendered HTML
 	 * @dontvalidate
 	 */
-	public function addCategoryAction($parentNodeId, $nodeTitle, $nodeDescription) {
+	public function addCategoryAction($parentNodeId, $nodeTitle='', $nodeDescription='') {
+		die('hier');
+		
 		$parentCategory = $this->categoryRepository->findByUid($parentNodeId);
 		if($parentCategory !== NULL) {
 			$newCategory = new Tx_Yag_Domain_Model_Category();
@@ -184,17 +223,11 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 * @return string Rendered response
 	 */
 	public function moveCategoryIntoAction($movedNodeId, $targetNodeId) {
-		
-		/*
-		 * Warning - this is not yet working! We need to update the whole tree for that
-		 * but only get the tree downward from the node requested from repository
-		 */ 
-		
-		$movedCategory = $this->categoryRepository->findByUid($movedNodeId);    /* @var $movedCategory Tx_Yag_Domain_Model_Category */
-		$targetCategory = $this->categoryRepository->findByUid($targetNodeId);  /* @var $targetCategory Tx_Yag_Domain_Model_Category */
-		$targetCategory->addChild($movedCategory);
-		$this->categoryRepository->update($movedCategory);
-		$this->categoryRepository->update($targetCategory);
+		$categoryToBeMoved = $this->categoryRepository->findByUid($movedNodeId);
+		$targetNode = $this->categoryRepository->findByUid($targetNodeId);
+		$categoryTree = $this->categoryTreeRepository->findByRootId($categoryToBeMoved->getRoot());
+		$categoryTree->moveNode($categoryToBeMoved, $targetNode);
+		$this->categoryTreeRepository->update($categoryTree);
 		$this->persistenceManager->persistAll();
 	}
 	
@@ -208,20 +241,12 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 * @return string Rendered response
 	 */
 	public function moveCategoryAfterAction($movedNodeId, $targetNodeId) {
-		
-        /*
-         * Warning - this is not yet working! We need to update the whole tree for that
-         * but only get the tree downward from the node requested from repository
-         */ 
-        
-        $movedCategory = $this->categoryRepository->findByUid($movedNodeId);    /* @var $movedCategory Tx_Yag_Domain_Model_Category */
-        $targetCategory = $this->categoryRepository->findByUid($targetNodeId);  /* @var $targetCategory Tx_Yag_Domain_Model_Category */
-
-        $movedCategory->getParent()->removeChild($movedCategory);
-        $targetCategory->getParent()->addChildAfter($movedCategory, $targetCategory);
-        
-        $this->categoryRepository->updateTree($targetCategory);
-        $this->persistenceManager->persistAll();
+		$categoryToBeMoved = $this->categoryRepository->findByUid($movedNodeId);
+		$targetNode = $this->categoryRepository->findByUid($targetNodeId);
+		$categoryTree = $this->categoryTreeRepository->findByRootId($categoryToBeMoved);
+		$categoryTree->moveNodeAfterNode($categoryToBeMoved, $targetNode);
+		$this->categoryTreeRepository->update($categoryTree);
+		$this->persistenceManager->persistAll();
 	}
 	
 	
@@ -234,19 +259,11 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 * @return string Rendered response
 	 */
 	public function moveCategoryBeforeAction($movedNodeId, $targetNodeId) {
-		
-        /*
-         * Warning - this is not yet working! We need to update the whole tree for that
-         * but only get the tree downward from the node requested from repository
-         */ 
-        
-        $movedCategory = $this->categoryRepository->findByUid($movedNodeId);    /* @var $movedCategory Tx_Yag_Domain_Model_Category */
-        $targetCategory = $this->categoryRepository->findByUid($targetNodeId);  /* @var $targetCategory Tx_Yag_Domain_Model_Category */
-
-        $movedCategory->getParent()->removeChild($movedCategory);
-        $targetCategory->getParent()->addChildBefore($movedCategory, $targetCategory);
-        
-        $this->categoryRepository->updateTree($targetCategory);
+        $categoryToBeMoved = $this->categoryRepository->findByUid($movedNodeId);
+        $targetNode = $this->categoryRepository->findByUid($targetNodeId);
+        $categoryTree = $this->categoryTreeRepository->findByRootId($categoryToBeMoved);
+        $categoryTree->moveNodeBeforeNode($categoryToBeMoved, $targetNode);
+        $this->categoryTreeRepository->update($categoryTree);
         $this->persistenceManager->persistAll();
 	}
 	

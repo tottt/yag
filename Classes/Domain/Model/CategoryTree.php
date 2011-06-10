@@ -164,6 +164,12 @@ class Tx_Yag_Domain_Model_CategoryTree {
 	
 	
 	
+	/**
+	 * Moves a node given as first parameter after a node given as second parameter
+	 *
+	 * @param Tx_Yag_Domain_Model_Category $nodeToBeMoved
+	 * @param Tx_Yag_Domain_Model_Category $nodeToMoveAfter
+	 */
 	public function moveNodeAfterNode(Tx_Yag_Domain_Model_Category $nodeToBeMoved, Tx_Yag_Domain_Model_Category $nodeToMoveAfter) {
 	    $this->checkForNodeBeingInTree($nodeToBeMoved);
         $this->checkForNodeBeingInTree($nodeToMoveAfter);
@@ -182,6 +188,20 @@ class Tx_Yag_Domain_Model_CategoryTree {
             throw new Exception("Trying to move a node after a node that doesn't have a parent node! 1307646535");
         }
         $this->updateCategoryTree();
+	}
+	
+	
+	
+	/**
+	 * Adds a given node into a given parent node
+	 *
+	 * @param Tx_Yag_Domain_Model_Category $newNode Node to be added to tree
+	 * @param Tx_Yag_Domain_Model_Category $parentNode Node to add new node into
+	 */
+	public function insertNode(Tx_Yag_Domain_Model_Category $newNode, Tx_Yag_Domain_Model_Category $parentNode) {
+		$this->getNodeByUid($parentNode->getUid())->addChild($newNode);
+		$newNode->setParent($this->getNodeByUid($parentNode->getUid()));
+		$this->updateCategoryTree();
 	}
 	
 	

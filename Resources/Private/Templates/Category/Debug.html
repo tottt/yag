@@ -1,5 +1,15 @@
 <h2>Debugging & Testing</h2>
 
+<h3>Current Category Tree</h3>
+<f:format.html>{categoryList}</f:format.html>
+
+<h3>Add Node</h3>
+<f:form method="post" name="addNewCategory" controller="Category" action="addNewCategory">
+    ID of category to add new node in: <f:form.textbox name="parentNodeId" />
+    Name of category to be added: <f:form.textbox name="nodeTitle" />
+    <f:form.submit value="Save Category" />
+</f:form>
+
 <h3>Remove Node by UID</h3>
 <f:form method="post" name="removeCategory" controller="Category" action="removeCategory">
     ID of category to be removed: <f:form.textbox name="nodeId" />
