@@ -69,6 +69,23 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeBuilderTest extends Tx_Yag_Tests_Bas
 	
 	
 	
+	/** @test */
+	public function buildTreeThrowsExceptionIfNodesAreNotGivenInDescendingLeftValueOrder() {
+        $repositoryMock = $this->buildRepositoryMock();
+        $repositoryMock->expects($this->once())
+            ->method('findByRootId')
+            ->will($this->returnValue(self::buildWrongSortedSetOfCategories()));
+        $treeBuilder = new Tx_Yag_Domain_Model_CategoryTreeBuilder($repositoryMock);
+        try {
+            $tree = $treeBuilder->buildTreeForCategory(self::createCategory(1,12,1));
+        } catch (Exception $e) {
+        	return;
+        }
+        $this->fail('Tree Builder threw no Exception if categories are given in wrong order!');
+	}
+	
+	
+	
 	/**
 	 * Returns an ordered set of categories
 	 *
@@ -83,6 +100,20 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeBuilderTest extends Tx_Yag_Tests_Bas
 		$setOfCategories->attach(self::createCategory(2,2,7,1,'2'));
 		$setOfCategories->attach(self::createCategory(1,1,12,1,'1'));
 		return $setOfCategories;
+	}
+	
+	
+
+	/**
+	 * Helper method to return a wrong sorted set of categories
+	 *
+	 * @return Tx_Extbase_Persistence_ObjectStorage
+	 */
+	protected static function buildWrongSortedSetOfCategories() {
+		$setOfCategories = new Tx_Extbase_Persistence_ObjectStorage();
+        $setOfCategories->attach(self::createCategory(5,8,11,1,'5'));
+        $setOfCategories->attach(self::createCategory(6,9,10,1,'6'));
+        return $setOfCategories;
 	}
 	
 	

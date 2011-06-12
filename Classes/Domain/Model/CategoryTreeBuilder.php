@@ -62,9 +62,20 @@ class Tx_Yag_Domain_Model_CategoryTreeBuilder {
 	 * @return Tx_Yag_Domain_Model_CategoryTree
 	 */
 	public function buildTreeForCategory(Tx_Yag_Domain_Model_Category $category) {
+		/**
+		 * Explanation: We build the tree bottom-up and therefore use a stack.
+		 * Each node is added to a child to topStack, if topStack's right-value is smaller
+		 * than current node's right-value.
+		 */
+		
 		$nodes = $this->categoryRepository->findByRootId($category->getRoot())->toArray();
 		$stack = new Tx_Yag_Domain_Model_Stack();
-		foreach($nodes as $node) { 
+		$prevLft = PHP_INT_MAX;
+		foreach($nodes as $node) {
+			/* Assertion: Nodes must be given in descending left-value order. */ 
+			if ($node->getLft() > $prevLft)
+			    throw new Exception("Nodes must be given in descending left-value order. 1307861852");
+			$prevLft = $node->getLft(); 
 			#echo "<br><br>Knoten: " . $node->toString();
 			if ($stack->isEmpty() || $stack->top()->getRgt() > $node->getRgt()) {
 				$stack->push($node);
