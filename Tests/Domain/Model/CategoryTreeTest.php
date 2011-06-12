@@ -41,6 +41,17 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
 	
 	
 	/** @test */
+	public function createInstanceByRootNodeReturnsNumberedTreeInstance() {
+		$rootNode = new Tx_Yag_Domain_Model_Category('root', 'rootNode');
+		$tree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
+		$this->assertTrue(is_a($tree, Tx_Yag_Domain_Model_CategoryTree));
+		$this->assertEquals($tree->getRoot()->getLft(), 1);
+		$this->assertEquals($tree->getRoot()->getRgt(), 2);
+	}
+	
+	
+	
+	/** @test */
 	public function createCategoryTreeReturnsEmptyTree() {
 		$emptyTree = new Tx_Yag_Domain_Model_CategoryTree();
 		$this->assertEquals($emptyTree->getRoot(), null);
@@ -99,7 +110,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
         $firstChild->addChild($thirdChild);
         $rootNode->addChild($firstChild);
         
-        $categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+        $categoryTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
         
         $categoryTree->deleteNode($firstChild);
         
@@ -127,7 +138,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
         $firstChild->addChild($thirdChild);
         $rootNode->addChild($firstChild);
         
-        $categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+        $categoryTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
         
         var_dump('Before move: ' . $categoryTree->toString());
         
@@ -155,7 +166,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
         $firstChild->addChild($thirdChild);
         $rootNode->addChild($firstChild);
                 
-        $categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+        $categoryTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
         
         var_dump('Before move: ' . $categoryTree->toString());
         
@@ -185,7 +196,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
         $firstChild->addChild($thirdChild);
         $rootNode->addChild($firstChild);
         
-        $categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+        $categoryTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
         
         var_dump('Before move: ' . $categoryTree->toString());
         
@@ -215,7 +226,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
         $firstChild->addChild($thirdChild);
         $rootNode->addChild($firstChild);
         
-        $categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+        $categoryTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
         
 		$newNode = new Tx_Yag_Domain_Model_Category('test', 'test');
 		

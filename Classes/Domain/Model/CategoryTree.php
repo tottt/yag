@@ -32,7 +32,7 @@
  * @author Michael Knoll <mimi@kaktusteam.de>
  * @author Daniel Lienert <daniel@lienert.cc>
  */
-class Tx_Yag_Domain_Model_CategoryTree {
+class Tx_Yag_Domain_Model_CategoryTree implements Tx_Yag_Domain_Model_TraversableInterface {
 
 	/**
 	 * Holds reference of root node for this tree
@@ -53,6 +53,31 @@ class Tx_Yag_Domain_Model_CategoryTree {
 	
 	
 	/**
+	 * Holds a reference to a treewalker that updates nested set orderings
+	 *
+	 * @var Tx_Yag_Domain_Model_TreeWalker
+	 */
+	protected $nsTreeWalker;
+	
+	
+	
+	/**
+	 * Factory method for instantiating a tree for a given root node
+	 *
+	 * @param Tx_Yag_Domain_Model_Category $rootNode
+	 * @return Tx_Yag_Domain_Model_CategoryTree
+	 */
+	public static function getInstanceByRootNode(Tx_Yag_Domain_Model_Category $rootNode) {
+		$tree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+		$treeWalker = new Tx_Yag_Domain_Model_TreeWalker(array(new Tx_Yag_Domain_Model_NestedSetVisitor()));
+		$tree->injectNsUpdateTreeWalker($treeWalker);
+		$tree->updateCategoryTree();
+		return $tree;
+	}
+	
+	
+	
+	/**
 	 * Constructor for Category Tree
 	 *
 	 * @param Tx_Yag_Domain_Model_Category $rootNode Root node for category tree
@@ -60,6 +85,17 @@ class Tx_Yag_Domain_Model_CategoryTree {
 	public function __construct(Tx_Yag_Domain_Model_Category $rootNode = null){
 		$this->rootNode = $rootNode;
 		$this->initTreeMap();
+	}
+	
+	
+	
+	/**
+	 * Injects a treewalker that updates nested set orderings
+	 *
+	 * @param Tx_Yag_Domain_Model_TreeWalker $treeWalker
+	 */
+	public function injectNsUpdateTreeWalker(Tx_Yag_Domain_Model_TreeWalker $treeWalker) {
+		$this->nsTreeWalker = $treeWalker;
 	}
 	
 	
@@ -263,7 +299,7 @@ class Tx_Yag_Domain_Model_CategoryTree {
 	 * Updates tree after any changes took place
 	 */
 	protected function updateCategoryTree() {
-		$this->rootNode->updateNode();
+		$this->nsTreeWalker->traverseTreeDfs($this);
 	}
 	
 	

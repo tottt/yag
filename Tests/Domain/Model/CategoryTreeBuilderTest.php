@@ -139,7 +139,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeBuilderTest extends Tx_Yag_Tests_Bas
 	 * @param string $description
 	 * @return Tx_Yag_Domain_Model_Category
 	 */
-	protected static function createCategory($uid, $lft, $rgt, $root, $name = '', $description = '') {
+	public static function createCategory($uid, $lft, $rgt, $root, $name = '', $description = '') {
 		$category = new Tx_Yag_Tests_Domain_Model_CategoryMock($uid, $name, $description);
 		$category->setLft($lft);
 		$category->setRgt($rgt);

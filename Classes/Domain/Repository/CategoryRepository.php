@@ -30,7 +30,9 @@
  * @subpackage Repository
  * @author Michael Knoll <mimi@kaktusteam.de>
  */
-class Tx_Yag_Domain_Repository_CategoryRepository extends Tx_Yag_Domain_Repository_AbstractRepository {
+class Tx_Yag_Domain_Repository_CategoryRepository
+    extends Tx_Yag_Domain_Repository_AbstractRepository 
+    implements Tx_Yag_Domain_Model_NodeRepositoryInterface { 
 
 	/**
 	 * Adds a category (and all sub categories) to repository
@@ -74,6 +76,22 @@ class Tx_Yag_Domain_Repository_CategoryRepository extends Tx_Yag_Domain_Reposito
 	
 	
 	/**
+	 * Returns a set of categories determined by the root of the given node.
+	 *
+	 * @param Tx_Yag_Domain_Model_NodeInterface $category
+	 * @return Tx_Extbase_Persistence_ObjectStorage<Tx_Yag_Domain_Model_Category>
+	 */
+	public function findByRootOfGivenNodeUid(Tx_Yag_Domain_Model_NodeInterface $category) {
+		$rootUid = $category->getRoot();
+		$query = $this->createQuery();
+		$query->matching($query->equals('root', $rootUid))
+		    ->setOrderings(array('lft' => Tx_Extbase_Persistence_Query::ORDER_DESCENDING));
+		return $query->execute();
+	}
+	
+	
+	
+	/**
 	 * We build up a category tree recursively.
 	 *
 	 * @param Tx_Yag_Domain_Model_Category $root
@@ -82,7 +100,6 @@ class Tx_Yag_Domain_Repository_CategoryRepository extends Tx_Yag_Domain_Reposito
 	 */
 	protected function buildUpCategoryTree(Tx_Yag_Domain_Model_Category $root, $children) {
 		foreach ($children as $child) { /* @var $child Tx_Yag_Domain_Model_Category */
-
 			if ($child->getRgt() < $root->getRgt()) {
 				/* Current child must be child of current root - so we add it */
                 $root->addChild($child, false);

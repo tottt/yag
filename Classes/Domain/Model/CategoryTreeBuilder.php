@@ -36,9 +36,9 @@
 class Tx_Yag_Domain_Model_CategoryTreeBuilder {
 
 	/**
-	 * Holds an instance of category repository
+	 * Holds an instance of node repository
 	 *
-	 * @var Tx_Yag_Domain_Repository_CategoryRepository
+	 * @var Tx_Yag_Domain_Model_NodeRepositoryInterface
 	 */
 	protected $categoryRepository;
 	
@@ -49,7 +49,7 @@ class Tx_Yag_Domain_Model_CategoryTreeBuilder {
 	 *
 	 * @param Tx_Yag_Domain_Repository_CategoryRepository $categoryRepository
 	 */
-	public function __construct(Tx_Yag_Domain_Repository_CategoryRepository $categoryRepository) {
+	public function __construct(Tx_Yag_Domain_Model_NodeRepositoryInterface $categoryRepository) {
 		$this->categoryRepository = $categoryRepository;
 	}
 	
@@ -71,7 +71,7 @@ class Tx_Yag_Domain_Model_CategoryTreeBuilder {
 		$nodes = $this->categoryRepository->findByRootId($category->getRoot())->toArray();
 		$stack = new Tx_Yag_Domain_Model_Stack();
 		$prevLft = PHP_INT_MAX;
-		foreach($nodes as $node) {
+		foreach($nodes as $node) { /* @var $node Tx_Yag_Domain_Model_Category */
 			/* Assertion: Nodes must be given in descending left-value order. */ 
 			if ($node->getLft() > $prevLft)
 			    throw new Exception("Nodes must be given in descending left-value order. 1307861852");
