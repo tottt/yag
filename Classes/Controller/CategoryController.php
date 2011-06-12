@@ -211,12 +211,6 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 		$this->categoryRepository->remove($nodeToBeRemoved);
 		$this->categoryTreeRepository->update($categoryTree);
 		$this->persistenceManager->persistAll();
-		/*
-		$categoryToDelete = $this->categoryRepository->findByUid($nodeId);
-		// Wie werden Kategorien gelöscht? --> so:
-		$this->categoryRepository->remove($categoryToDelete);
-		$this->persistenceManager->persistAll();
-        */
 	}
 	
 	
