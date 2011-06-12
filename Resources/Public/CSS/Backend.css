@@ -76,6 +76,11 @@ td.yag-col-thumb, td.yag-col-title  {
 	margin-right: 10px;
 }
 
+.yag-elementLabel {
+	padding: 7px 0 3px 0;
+	font-weight:bold;
+}
+
 /*
 * extList
 */
