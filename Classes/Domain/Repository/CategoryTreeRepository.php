@@ -99,11 +99,25 @@ class Tx_Yag_Domain_Repository_CategoryTreeRepository {
 	 * @param Tx_Yag_Domain_Model_CategoryTree $categoryTree Category tree to be updated in database
 	 */
 	public function update(Tx_Yag_Domain_Model_CategoryTree $categoryTree) {
+		$this->removeDeletedNodesOfGivenCategoryTree($categoryTree);
 		$categories = $categoryTree->getRoot()->getSubCategories();
 		foreach ($categories as $category) {
 			$this->categoryRepository->update($category);
 		}
 		$this->categoryRepository->update($categoryTree->getRoot());
+	}
+	
+	
+	
+	/**
+	 * Removes deleted nodes of a given tree from repository
+	 *
+	 * @param Tx_Yag_Domain_Model_CategoryTree $categoryTree Tree whose deleted nodes should be removed from repository
+	 */
+	protected function removeDeletedNodesOfGivenCategoryTree(Tx_Yag_Domain_Model_CategoryTree $categoryTree) {
+		foreach ($categoryTree->getDeletedNodes() as $deletedNode) {
+			$this->categoryRepository->remove($deletedNode);
+		}
 	}
 	
 }

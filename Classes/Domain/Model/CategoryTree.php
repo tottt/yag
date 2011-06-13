@@ -71,12 +71,21 @@ class Tx_Yag_Domain_Model_CategoryTree implements Tx_Yag_Domain_Model_Traversabl
 	
 	
 	/**
+	 * Holds a list of deleted nodes
+	 *
+	 * @var array
+	 */
+	protected $deletedNodes = array();
+	
+	
+	
+	/**
 	 * Factory method for instantiating a tree for a given root node
 	 *
 	 * @param Tx_Yag_Domain_Model_Category $rootNode
 	 * @return Tx_Yag_Domain_Model_CategoryTree
 	 */
-	public static function getInstanceByRootNode(Tx_Yag_Domain_Model_Category $rootNode) {
+	public static function getInstanceByRootNode(Tx_Yag_Domain_Model_Category $rootNode = null) {
 		$tree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
 		$nsTreeWalker = new Tx_Yag_Domain_Model_TreeWalker(array(new Tx_Yag_Domain_Model_NestedSetVisitor()));
 		$tree->injectNsUpdateTreeWalker($nsTreeWalker);
@@ -132,6 +141,17 @@ class Tx_Yag_Domain_Model_CategoryTree implements Tx_Yag_Domain_Model_Traversabl
 		} else {
 			return null;
 		}
+	}
+	
+	
+
+	/**
+	 * Returns array of deleted nodes
+	 *
+	 * @return array
+	 */
+	public function getDeletedNodes() {
+		return $this->deletedNodes;
 	}
 	
 	
@@ -288,6 +308,18 @@ class Tx_Yag_Domain_Model_CategoryTree implements Tx_Yag_Domain_Model_Traversabl
 		if (array_key_exists($node->getUid(), $this->treeMap)) {
 			unset($this->treeMap[$node->getUid()]);
 		}
+		$this->addNodeToDeletedNodes($node);
+	}
+	
+	
+	
+	/**
+	 * Adds a node to list of deleted nodes
+	 *
+	 * @param Tx_Yag_Domain_Model_Category $node Node to be deleted
+	 */
+	protected function addNodeToDeletedNodes(Tx_Yag_Domain_Model_Category $node) {
+		$this->deletedNodes[] = $node;
 	}
 	
 	
@@ -310,7 +342,9 @@ class Tx_Yag_Domain_Model_CategoryTree implements Tx_Yag_Domain_Model_Traversabl
 	 * Updates tree after any changes took place
 	 */
 	protected function updateCategoryTree() {
-		$this->nsTreeWalker->traverseTreeDfs($this);
+		if ($this->rootNode !== null) {
+		    $this->nsTreeWalker->traverseTreeDfs($this);
+		}
 	}
 	
 	

@@ -202,9 +202,6 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 		$nodeToBeRemoved = $this->categoryRepository->findByUid($nodeId);
 		$categoryTree = $this->categoryTreeRepository->findByRootId($nodeToBeRemoved->getRoot());
 		$categoryTree->deleteNode($nodeToBeRemoved);
-		// TODO: This is still a little ugly! Idea: categoryTree must hold a reference on categoryRepository
-		// Other idea: tree holds a property on removed nodes and updated nodes. So tree repository can handle this, when updating tree
-		$this->categoryRepository->remove($nodeToBeRemoved);
 		$this->categoryTreeRepository->update($categoryTree);
 		$this->persistenceManager->persistAll();
 		

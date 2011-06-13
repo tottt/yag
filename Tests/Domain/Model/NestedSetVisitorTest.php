@@ -64,7 +64,7 @@ class Tx_Yag_Tests_Domain_Model_NestedSetVisitorTest extends Tx_Yag_Tests_BaseTe
         $node2->addChild($node4); $node4->setParent($node2);
         $node5->addChild($node6); $node6->setParent($node5);
         
-        $tree = new Tx_Yag_Domain_Model_CategoryTree($node1);
+        $tree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($node1);
         
         $visitor = new Tx_Yag_Domain_Model_NestedSetVisitor();
         $treeWalker = new Tx_Yag_Domain_Model_TreeWalker(array($visitor));

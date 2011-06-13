@@ -46,7 +46,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeBuilderTest extends Tx_Yag_Tests_Bas
 		$categoriesArray = $categoriesObjectStorage->toArray();
 		$repositoryMock = $this->buildRepositoryMock();
 		$repositoryMock->expects($this->once())
-		    ->method('findByRootId')
+		    ->method('findByRootUid')
 		    ->will($this->returnValue($categoriesObjectStorage));
 		$treeBuilder = new Tx_Yag_Domain_Model_CategoryTreeBuilder($repositoryMock);
 		$tree = $treeBuilder->buildTreeForCategory(self::createCategory(1,12,1));
@@ -73,7 +73,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeBuilderTest extends Tx_Yag_Tests_Bas
 	public function buildTreeThrowsExceptionIfNodesAreNotGivenInDescendingLeftValueOrder() {
         $repositoryMock = $this->buildRepositoryMock();
         $repositoryMock->expects($this->once())
-            ->method('findByRootId')
+            ->method('findByRootUid')
             ->will($this->returnValue(self::buildWrongSortedSetOfCategories()));
         $treeBuilder = new Tx_Yag_Domain_Model_CategoryTreeBuilder($repositoryMock);
         try {
@@ -124,7 +124,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeBuilderTest extends Tx_Yag_Tests_Bas
 	 * @return Tx_Yag_Domain_Repository_CategoryRepository Mocked repository
 	 */
 	protected function buildRepositoryMock() {
-		return $this->getMock('Tx_Yag_Domain_Repository_CategoryRepository', array('findByRootId'), array(), '', FALSE);
+		return $this->getMock('Tx_Yag_Domain_Repository_CategoryRepository', array('findByRootUid'), array(), '', FALSE);
 	}
 	
 	
