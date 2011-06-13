@@ -68,7 +68,7 @@ class Tx_Yag_Domain_Model_CategoryTreeBuilder {
 		 * than current node's right-value.
 		 */
 		
-		$nodes = $this->categoryRepository->findByRootId($category->getRoot())->toArray();
+		$nodes = $this->categoryRepository->findByRootUid($category->getRoot())->toArray();
 		$stack = new Tx_Yag_Domain_Model_Stack();
 		$prevLft = PHP_INT_MAX;
 		foreach($nodes as $node) { /* @var $node Tx_Yag_Domain_Model_Category */
@@ -93,7 +93,7 @@ class Tx_Yag_Domain_Model_CategoryTreeBuilder {
 				#echo "After pushing after while: <ul>" . $stack->toString() . "</ul>";
 			}
 		}
-		$tree = new Tx_Yag_Domain_Model_CategoryTree($stack->top());
+		$tree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($stack->top());
 		#echo "Finished tree: " . $tree->toString();
 		return $tree;
 	}

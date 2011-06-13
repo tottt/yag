@@ -40,8 +40,17 @@ class Tx_Yag_Domain_Repository_CategoryTreeRepository {
 	protected $categoryRepository;
 	
 	
+	/**
+	 * Holds a reference for a tree builder
+	 *
+	 * @var Tx_Yag_Domain_Model_CategoryTreeBuilder
+	 */
+	protected $treeBuilder;
+	
+	
 	public function __construct() {
 		$this->categoryRepository = new Tx_Yag_Domain_Repository_CategoryRepository();
+		$this->treeBuilder = new Tx_Yag_Domain_Model_CategoryTreeBuilder($this->categoryRepository);
 	}
 	
 	
@@ -54,8 +63,32 @@ class Tx_Yag_Domain_Repository_CategoryTreeRepository {
 	 */
 	public function findByRootId($rootNodeId) {
 		$rootNode = $this->categoryRepository->findByUid($rootNodeId);
-		$categoryTreeForRootId = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
-		return $categoryTreeForRootId;
+		return $this->treeBuilder->buildTreeForCategory($rootNode);
+	}
+	
+	
+	
+	/**
+	 * Returns a category tree for an arbitrary category within this tree.
+	 * 
+	 * @param Tx_Yag_Domain_Model_Category $category Category to return category tree for
+	 * @return Tx_Yag_Domain_Model_CategoryTree
+	 */
+	public function findByCategory(Tx_Yag_Domain_Model_Category $category) {
+		return $this->findByRootId($category->getRoot()); 
+	}
+	
+	
+	
+	/**
+	 * Returns a category tree for an arbitrary category uid within this tree.
+	 *
+	 * @param int $categoryUid UID of category to build tree for
+	 * @return Tx_Yag_Domain_Model_CategoryTree
+	 */
+	public function findByCategoryId($categoryUid) {
+		$category = $this->categoryRepository->findByUid($categoryUid);
+		return $this->findByCategory($category);
 	}
 	
 	
@@ -66,7 +99,11 @@ class Tx_Yag_Domain_Repository_CategoryTreeRepository {
 	 * @param Tx_Yag_Domain_Model_CategoryTree $categoryTree Category tree to be updated in database
 	 */
 	public function update(Tx_Yag_Domain_Model_CategoryTree $categoryTree) {
-		$this->categoryRepository->updateTree($categoryTree->getRoot());
+		$categories = $categoryTree->getRoot()->getSubCategories();
+		foreach ($categories as $category) {
+			$this->categoryRepository->update($category);
+		}
+		$this->categoryRepository->update($categoryTree->getRoot());
 	}
 	
 }

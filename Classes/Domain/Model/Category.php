@@ -289,6 +289,8 @@ class Tx_Yag_Domain_Model_Category
      */
     public function setParent(Tx_Yag_Domain_Model_NodeInterface $category) {
     	$this->parent = $category;
+    	if ($category->children == null)
+    	   $category->children = new Tx_Extbase_Persistence_ObjectStorage();
     	$category->children->attach($this);
     }
     

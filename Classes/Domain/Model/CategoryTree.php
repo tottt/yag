@@ -62,6 +62,15 @@ class Tx_Yag_Domain_Model_CategoryTree implements Tx_Yag_Domain_Model_Traversabl
 	
 	
 	/**
+	 * Holds a reference to a treewalker that updates treemap
+	 *
+	 * @var Tx_Yag_Domain_Model_TreeWalker
+	 */
+	protected $treeMapTreeWalker;
+	
+	
+	
+	/**
 	 * Factory method for instantiating a tree for a given root node
 	 *
 	 * @param Tx_Yag_Domain_Model_Category $rootNode
@@ -69,8 +78,8 @@ class Tx_Yag_Domain_Model_CategoryTree implements Tx_Yag_Domain_Model_Traversabl
 	 */
 	public static function getInstanceByRootNode(Tx_Yag_Domain_Model_Category $rootNode) {
 		$tree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
-		$treeWalker = new Tx_Yag_Domain_Model_TreeWalker(array(new Tx_Yag_Domain_Model_NestedSetVisitor()));
-		$tree->injectNsUpdateTreeWalker($treeWalker);
+		$nsTreeWalker = new Tx_Yag_Domain_Model_TreeWalker(array(new Tx_Yag_Domain_Model_NestedSetVisitor()));
+		$tree->injectNsUpdateTreeWalker($nsTreeWalker);
 		$tree->updateCategoryTree();
 		return $tree;
 	}
@@ -82,7 +91,7 @@ class Tx_Yag_Domain_Model_CategoryTree implements Tx_Yag_Domain_Model_Traversabl
 	 *
 	 * @param Tx_Yag_Domain_Model_Category $rootNode Root node for category tree
 	 */
-	public function __construct(Tx_Yag_Domain_Model_Category $rootNode = null){
+	private function __construct(Tx_Yag_Domain_Model_Category $rootNode = null){
 		$this->rootNode = $rootNode;
 		$this->initTreeMap();
 	}
@@ -90,7 +99,7 @@ class Tx_Yag_Domain_Model_CategoryTree implements Tx_Yag_Domain_Model_Traversabl
 	
 	
 	/**
-	 * Injects a treewalker that updates nested set orderings
+	 * Injects a treewalker for updating nested set numbering
 	 *
 	 * @param Tx_Yag_Domain_Model_TreeWalker $treeWalker
 	 */
@@ -235,8 +244,10 @@ class Tx_Yag_Domain_Model_CategoryTree implements Tx_Yag_Domain_Model_Traversabl
 	 * @param Tx_Yag_Domain_Model_Category $parentNode Node to add new node into
 	 */
 	public function insertNode(Tx_Yag_Domain_Model_Category $newNode, Tx_Yag_Domain_Model_Category $parentNode) {
-		$this->getNodeByUid($parentNode->getUid())->addChild($newNode);
-		$newNode->setParent($this->getNodeByUid($parentNode->getUid()));
+		$parentNode = $this->getNodeByUid($parentNode->getUid());
+		$parentNode->addChild($newNode);
+		$newNode->setParent($parentNode);
+		$newNode->setRoot($parentNode->getRoot());
 		$this->updateCategoryTree();
 	}
 	
