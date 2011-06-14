@@ -239,6 +239,18 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
 	
 	
 	/** @test */
+	public function insertingNodeAddsInsertedNodeToListOfAddedNodes() {
+		$rootNode = new Tx_Yag_Tests_Domain_Model_CategoryMock(1);
+		$nodeToBeAdded = new Tx_Yag_Tests_Domain_Model_CategoryMock(2);
+		$categoryTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
+		$categoryTree->insertNode($nodeToBeAdded, $rootNode);
+		
+		$this->assertTrue(in_array($nodeToBeAdded, $categoryTree->getAddedNodes()));
+	}
+	
+	
+	
+	/** @test */
 	public function deletingNodeFromTreeAddsDeletedNodesToListOfDeletedNodes() {
 		$rootNode = new Tx_Yag_Tests_Domain_Model_CategoryMock(1);
         $firstChild = new Tx_Yag_Tests_Domain_Model_CategoryMock(2);

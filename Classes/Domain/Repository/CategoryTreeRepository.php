@@ -40,6 +40,7 @@ class Tx_Yag_Domain_Repository_CategoryTreeRepository {
 	protected $categoryRepository;
 	
 	
+	
 	/**
 	 * Holds a reference for a tree builder
 	 *
@@ -48,8 +49,12 @@ class Tx_Yag_Domain_Repository_CategoryTreeRepository {
 	protected $treeBuilder;
 	
 	
+	
+	/**
+	 * Constructor for categoryTree repository
+	 */
 	public function __construct() {
-		$this->categoryRepository = new Tx_Yag_Domain_Repository_CategoryRepository();
+		$this->categoryRepository = t3lib_div::makeInstance('Tx_Yag_Domain_Repository_CategoryRepository');
 		$this->treeBuilder = new Tx_Yag_Domain_Model_CategoryTreeBuilder($this->categoryRepository);
 	}
 	
@@ -100,9 +105,13 @@ class Tx_Yag_Domain_Repository_CategoryTreeRepository {
 	 */
 	public function update(Tx_Yag_Domain_Model_CategoryTree $categoryTree) {
 		$this->removeDeletedNodesOfGivenCategoryTree($categoryTree);
+		$this->addAddedNodesOfGivenCategoryTree($categoryTree);
 		$categories = $categoryTree->getRoot()->getSubCategories();
 		foreach ($categories as $category) {
-			$this->categoryRepository->update($category);
+			if ($category->getUid() > 0) {
+				// we only update categories, that have already been persisted!
+			    $this->categoryRepository->update($category);
+			}
 		}
 		$this->categoryRepository->update($categoryTree->getRoot());
 	}
@@ -110,13 +119,26 @@ class Tx_Yag_Domain_Repository_CategoryTreeRepository {
 	
 	
 	/**
-	 * Removes deleted nodes of a given tree from repository
+	 * Removes deleted nodes of a given tree from category repository
 	 *
 	 * @param Tx_Yag_Domain_Model_CategoryTree $categoryTree Tree whose deleted nodes should be removed from repository
 	 */
 	protected function removeDeletedNodesOfGivenCategoryTree(Tx_Yag_Domain_Model_CategoryTree $categoryTree) {
 		foreach ($categoryTree->getDeletedNodes() as $deletedNode) {
 			$this->categoryRepository->remove($deletedNode);
+		}
+	}
+	
+	
+	
+	/**
+	 * Adds added nodes of a given tree to category repository
+	 *
+	 * @param Tx_Yag_Domain_Model_CategoryTree $categoryTree
+	 */
+	protected function addAddedNodesOfGivenCategoryTree(Tx_Yag_Domain_Model_CategoryTree $categoryTree) {
+		foreach ($categoryTree->getAddedNodes() as $addedNode) {
+			$this->categoryRepository->add($addedNode);
 		}
 	}
 	

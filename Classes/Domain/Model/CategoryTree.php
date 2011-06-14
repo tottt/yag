@@ -80,6 +80,15 @@ class Tx_Yag_Domain_Model_CategoryTree implements Tx_Yag_Domain_Model_Traversabl
 	
 	
 	/**
+	 * Holds a list of added nodes
+	 *
+	 * @var array
+	 */
+	protected $addedNodes = array();
+	
+	
+	
+	/**
 	 * Factory method for instantiating a tree for a given root node
 	 *
 	 * @param Tx_Yag_Domain_Model_Category $rootNode
@@ -152,6 +161,17 @@ class Tx_Yag_Domain_Model_CategoryTree implements Tx_Yag_Domain_Model_Traversabl
 	 */
 	public function getDeletedNodes() {
 		return $this->deletedNodes;
+	}
+	
+	
+	
+	/**
+	 * Returns a list of added nodes
+	 *
+	 * @return array
+	 */
+	public function getAddedNodes() {
+		return $this->addedNodes;
 	}
 	
 	
@@ -268,6 +288,7 @@ class Tx_Yag_Domain_Model_CategoryTree implements Tx_Yag_Domain_Model_Traversabl
 		$parentNode->addChild($newNode);
 		$newNode->setParent($parentNode);
 		$newNode->setRoot($parentNode->getRoot());
+		$this->addNodeToAddedNodes($newNode);
 		$this->updateCategoryTree();
 	}
 	
@@ -320,6 +341,17 @@ class Tx_Yag_Domain_Model_CategoryTree implements Tx_Yag_Domain_Model_Traversabl
 	 */
 	protected function addNodeToDeletedNodes(Tx_Yag_Domain_Model_Category $node) {
 		$this->deletedNodes[] = $node;
+	}
+	
+	
+	
+	/**
+	 * Adds a node to list of added nodes
+	 *
+	 * @param Tx_Yag_Domain_Model_Category $node Node to be added to list of added nodes
+	 */
+	protected function addNodeToAddedNodes(Tx_Yag_Domain_Model_Category $node) {
+	     $this->addedNodes[] = $node;	
 	}
 	
 	

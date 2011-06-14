@@ -131,7 +131,7 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 		$category->setName($categoryTitle);
 		$category->setDescription($categoryDescription);
 		$this->categoryRepository->update($category);
-		$this->objectManager->get('Tx_Extbase_Persistence_Manager')->persistAll();
+		$this->persistenceManager->persistAll();
 	}
 	
 	
@@ -145,14 +145,7 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 */
 	public function addNewCategoryAction($parentNodeId, $nodeTitle, $nodeDescription = '') {
 		$parentNode = $this->categoryRepository->findByUid($parentNodeId);
-		
 		$newNode = new Tx_Yag_Domain_Model_Category($nodeTitle, $nodeDescription);
-		// TODO node should not be persisted here. If something goes wrong in further process,
-		// we have a orphan-node in our database!
-		// Idea: new node should be listed in tree and handled whenever updating the tree by the repository
-		$this->categoryRepository->add($newNode);
-		$this->persistenceManager->persistAll();
-
 		$categoryTree = $this->categoryTreeRepository->findByRootId($parentNode->getRoot());
 		$categoryTree->insertNode($newNode, $parentNode);
 		$this->categoryTreeRepository->update($categoryTree);
@@ -172,7 +165,13 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 * @dontvalidate
 	 */
 	public function addCategoryAction($parentNodeId, $nodeTitle='', $nodeDescription='') {
+		
+		
+		
         // this is currently not working, use addNewCategoryAction or fix this (action is not called from debug form - dunno why)
+		
+		// TODO replace whole code here by functionality of "addNewCategoryAction"!
+		
 		$parentCategory = $this->categoryRepository->findByUid($parentNodeId);
 		if($parentCategory !== NULL) {
 			$newCategory = new Tx_Yag_Domain_Model_Category();
