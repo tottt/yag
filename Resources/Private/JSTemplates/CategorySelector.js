@@ -1,5 +1,4 @@
 Ext.onReady(function(){
-	
         
     var baseRequest = {extensionName:'yag',pluginName:'pi1',controllerName:'Category'};
 
@@ -249,8 +248,8 @@ Ext.onReady(function(){
         id:1
     });
     yagCategoryTree.setRootNode(root);
-
     yagCategoryTree.render('categoryTreeDiv');
     root.expand();
+    yagCategoryTree.getSelectionModel().select(yagCategoryTree.getNodeById("2"));
 
 });
