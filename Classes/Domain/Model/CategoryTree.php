@@ -32,7 +32,7 @@
  * @author Michael Knoll <mimi@kaktusteam.de>
  * @author Daniel Lienert <daniel@lienert.cc>
  */
-class Tx_Yag_Domain_Model_CategoryTree {
+class Tx_Yag_Domain_Model_CategoryTree implements Tx_Yag_Domain_Model_TraversableInterface {
 
 	/**
 	 * Holds reference of root node for this tree
@@ -53,13 +53,76 @@ class Tx_Yag_Domain_Model_CategoryTree {
 	
 	
 	/**
+	 * Holds a reference to a treewalker that updates nested set orderings
+	 *
+	 * @var Tx_Yag_Domain_Model_TreeWalker
+	 */
+	protected $nsTreeWalker;
+	
+	
+	
+	/**
+	 * Holds a reference to a treewalker that updates treemap
+	 *
+	 * @var Tx_Yag_Domain_Model_TreeWalker
+	 */
+	protected $treeMapTreeWalker;
+	
+	
+	
+	/**
+	 * Holds a list of deleted nodes
+	 *
+	 * @var array
+	 */
+	protected $deletedNodes = array();
+	
+	
+	
+	/**
+	 * Holds a list of added nodes
+	 *
+	 * @var array
+	 */
+	protected $addedNodes = array();
+	
+	
+	
+	/**
+	 * Factory method for instantiating a tree for a given root node
+	 *
+	 * @param Tx_Yag_Domain_Model_Category $rootNode
+	 * @return Tx_Yag_Domain_Model_CategoryTree
+	 */
+	public static function getInstanceByRootNode(Tx_Yag_Domain_Model_Category $rootNode = null) {
+		$tree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+		$nsTreeWalker = new Tx_Yag_Domain_Model_TreeWalker(array(new Tx_Yag_Domain_Model_NestedSetVisitor()));
+		$tree->injectNsUpdateTreeWalker($nsTreeWalker);
+		$tree->updateCategoryTree();
+		return $tree;
+	}
+	
+	
+	
+	/**
 	 * Constructor for Category Tree
 	 *
 	 * @param Tx_Yag_Domain_Model_Category $rootNode Root node for category tree
 	 */
-	public function __construct(Tx_Yag_Domain_Model_Category $rootNode = null){
+	private function __construct(Tx_Yag_Domain_Model_Category $rootNode = null){
 		$this->rootNode = $rootNode;
 		$this->initTreeMap();
+	}
+	
+	
+	
+	/**
+	 * Injects a treewalker for updating nested set numbering
+	 *
+	 * @param Tx_Yag_Domain_Model_TreeWalker $treeWalker
+	 */
+	public function injectNsUpdateTreeWalker(Tx_Yag_Domain_Model_TreeWalker $treeWalker) {
+		$this->nsTreeWalker = $treeWalker;
 	}
 	
 	
@@ -87,6 +150,28 @@ class Tx_Yag_Domain_Model_CategoryTree {
 		} else {
 			return null;
 		}
+	}
+	
+	
+
+	/**
+	 * Returns array of deleted nodes
+	 *
+	 * @return array
+	 */
+	public function getDeletedNodes() {
+		return $this->deletedNodes;
+	}
+	
+	
+	
+	/**
+	 * Returns a list of added nodes
+	 *
+	 * @return array
+	 */
+	public function getAddedNodes() {
+		return $this->addedNodes;
 	}
 	
 	
@@ -199,8 +284,11 @@ class Tx_Yag_Domain_Model_CategoryTree {
 	 * @param Tx_Yag_Domain_Model_Category $parentNode Node to add new node into
 	 */
 	public function insertNode(Tx_Yag_Domain_Model_Category $newNode, Tx_Yag_Domain_Model_Category $parentNode) {
-		$this->getNodeByUid($parentNode->getUid())->addChild($newNode);
-		$newNode->setParent($this->getNodeByUid($parentNode->getUid()));
+		$parentNode = $this->getNodeByUid($parentNode->getUid());
+		$parentNode->addChild($newNode);
+		$newNode->setParent($parentNode);
+		$newNode->setRoot($parentNode->getRoot());
+		$this->addNodeToAddedNodes($newNode);
 		$this->updateCategoryTree();
 	}
 	
@@ -241,6 +329,29 @@ class Tx_Yag_Domain_Model_CategoryTree {
 		if (array_key_exists($node->getUid(), $this->treeMap)) {
 			unset($this->treeMap[$node->getUid()]);
 		}
+		$this->addNodeToDeletedNodes($node);
+	}
+	
+	
+	
+	/**
+	 * Adds a node to list of deleted nodes
+	 *
+	 * @param Tx_Yag_Domain_Model_Category $node Node to be deleted
+	 */
+	protected function addNodeToDeletedNodes(Tx_Yag_Domain_Model_Category $node) {
+		$this->deletedNodes[] = $node;
+	}
+	
+	
+	
+	/**
+	 * Adds a node to list of added nodes
+	 *
+	 * @param Tx_Yag_Domain_Model_Category $node Node to be added to list of added nodes
+	 */
+	protected function addNodeToAddedNodes(Tx_Yag_Domain_Model_Category $node) {
+	     $this->addedNodes[] = $node;	
 	}
 	
 	
@@ -263,7 +374,9 @@ class Tx_Yag_Domain_Model_CategoryTree {
 	 * Updates tree after any changes took place
 	 */
 	protected function updateCategoryTree() {
-		$this->rootNode->updateNode();
+		if ($this->rootNode !== null) {
+		    $this->nsTreeWalker->traverseTreeDfs($this);
+		}
 	}
 	
 	

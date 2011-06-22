@@ -57,7 +57,9 @@
  * @author Michael Knoll <mimi@kaktusteam.de>
  * @author Daniel Lienert <daniel@lienert.cc>
  */
-class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntity {
+class Tx_Yag_Domain_Model_Category
+    extends Tx_Extbase_DomainObject_AbstractEntity
+    implements Tx_Yag_Domain_Model_NodeInterface {
 	
 	/**
      * Name for category
@@ -283,13 +285,13 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     /**
      * Setter for parent category
      *
-     * @param Tx_Yag_Domain_Model_Category $category
-     * @param bool $updateLeftRight
+     * @param Tx_Yag_Domain_Model_NodeInterface $category
      */
-    public function setParent(Tx_Yag_Domain_Model_Category $category, $updateLeftRight = true) {
+    public function setParent(Tx_Yag_Domain_Model_NodeInterface $category) {
     	$this->parent = $category;
+    	if ($category->children == null)
+    	   $category->children = new Tx_Extbase_Persistence_ObjectStorage();
     	$category->children->attach($this);
-    	if ($updateLeftRight) $category->updateLeftRight();
     }
     
     
@@ -322,13 +324,11 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
      * @return int
      */
     public function getChildrenCount() {
-    	/**
-    	 * We can use traversal numbers of tree to 
-    	 * determine number of children:
-    	 * 
-    	 * #children = (node.right - node.left - 1) / 2
-    	 */
-    	return ($this->rgt - $this->lft - 1) / 2;
+    	if (!is_null($this->children)) {
+    	   return $this->children->count();
+    	} else {
+    		return 0;
+    	}
     }
     
     
@@ -395,10 +395,9 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     /**
      * Adds a child category to children at end of children
      *
-     * @param Tx_Yag_Domain_Model_Category $category
-     * @param bool $updateLeftRight
+     * @param Tx_Yag_Domain_Model_NodeInterface $category
      */
-    public function addChild(Tx_Yag_Domain_Model_Category $category, $updateLeftRight = true) {
+    public function addChild(Tx_Yag_Domain_Model_NodeInterface $category) {
     	// TODO this should not be necessary. Seems like this method is not invoked, if object is loaded from database
     	if (is_null($this->children)) {
     		$this->children = new Tx_Extbase_Persistence_ObjectStorage();
@@ -406,7 +405,6 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     	
     	$this->children->attach($category);
     	$category->parent = $this;
-    	if ($updateLeftRight) $this->updateLeftRight();
     }
     
     
@@ -414,11 +412,10 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     /**
      * Adds a new child category after a given child category
      *
-     * @param Tx_Yag_Domain_Model_Category $newChildCategory
-     * @param Tx_Yag_Domain_Model_Category $categoryToAddAfter
-     * @param bool $updateLeftRight
+     * @param Tx_Yag_Domain_Model_NodeInterface $newChildCategory
+     * @param Tx_Yag_Domain_Model_NodeInterface $categoryToAddAfter
      */
-    public function addChildAfter(Tx_Yag_Domain_Model_Category $newChildCategory, Tx_Yag_Domain_Model_Category $categoryToAddAfter, $updateLeftRight = true) {
+    public function addChildAfter(Tx_Yag_Domain_Model_NodeInterface $newChildCategory, Tx_Yag_Domain_Model_NodeInterface $categoryToAddAfter) {
     	$newChildren = new Tx_Extbase_Persistence_ObjectStorage();
     	foreach ($this->children as $child) {
     		$newChildren->attach($child);
@@ -427,7 +424,6 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     		}
     	}
     	$this->children = $newChildren;
-    	if ($updateLeftRight) $this->updateLeftRight();
     }
     
     
@@ -435,11 +431,11 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     /**
      * Adds a new child category before a given child category
      *
-     * @param Tx_Yag_Domain_Model_Category $newChildCategory
-     * @param Tx_Yag_Domain_Model_Category $categoryToAddBefore
+     * @param Tx_Yag_Domain_Model_NodeInterface $newChildCategory
+     * @param Tx_Yag_Domain_Model_NodeInterface $categoryToAddBefore
      * @param bool $updateLeftRight
      */
-    public function addChildBefore(Tx_Yag_Domain_Model_Category $newChildCategory, Tx_Yag_Domain_Model_Category $categoryToAddBefore, $updateLeftRight = true) {
+    public function addChildBefore(Tx_Yag_Domain_Model_NodeInterface $newChildCategory, Tx_Yag_Domain_Model_NodeInterface $categoryToAddBefore) {
     	$newChildren = new Tx_Extbase_Persistence_ObjectStorage();
     	foreach($this->children as $child) {
     		if ($child == $categoryToAddBefore) {
@@ -448,7 +444,6 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     		$newChildren->attach($child);
     	}
     	$this->children = $newChildren;
-    	if ($updateLeftRight) $this->updateLeftRight();
     }
     
     
@@ -456,45 +451,10 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     /**
      * Removes given child category
      *
-     * @param Tx_Yag_Domain_Model_Category $child
-     * @param bool $updateLeftRight
+     * @param Tx_Yag_Domain_Model_NodeInterface $child
      */
-    public function removeChild(Tx_Yag_Domain_Model_Category $child, $updateLeftRight = true) {
+    public function removeChild(Tx_Yag_Domain_Model_NodeInterface $child) {
     	$this->children->detach($child);
-    	if ($updateLeftRight) $this->updateLeftRight(); 
-    }
-    
-    
-    
-    /**
-     * Updates lft and rgt of this category and its sub-categories
-     *
-     * @param int $left
-     * @return int Next left value after updating this node
-     */
-    protected function updateLeftRight($left = 0) {
-    	if ($left == 0) {
-    		$left = $this->lft;
-    	} else {
-    		$this->lft = $left;
-    	}
-    	$left++;
-    	if ($this->hasChildren()) {
-	    	foreach ($this->children as $childNode) {
-	    		$left = $childNode->updateLeftRight($left);
-	    	}
-    	}
-    	$this->rgt = $left;
-    	return ++$left;
-    }
-    
-    
-    
-    /**
-     * Updates a tree underneath this node
-     */
-    public function updateNode() {
-    	$this->updateLeftRight();
     }
     
     
@@ -532,6 +492,11 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     
     
     
+    /**
+     * Renders a node as an li-element for debugging
+     *
+     * @return string
+     */
     public function toString() {
     	$categoryString = '<li>(' . $this->uid . ') ' . $this->name . '[left: ' . $this->lft . '  right:' . $this->rgt . ']';
     	if ($this->hasChildren()) {
@@ -543,6 +508,17 @@ class Tx_Yag_Domain_Model_Category extends Tx_Extbase_DomainObject_AbstractEntit
     	}
     	$categoryString .= '</li>';
     	return $categoryString;
+    }
+    
+    
+    
+    /**
+     * Returns sub nodes of this node
+     *
+     * @return Tx_Extbase_Persistence_ObjectStorage
+     */
+    public function getSubNodes() {
+    	return $this->getSubCategories();
     }
     
 }

@@ -41,8 +41,19 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
 	
 	
 	/** @test */
+	public function createInstanceByRootNodeReturnsNumberedTreeInstance() {
+		$rootNode = new Tx_Yag_Domain_Model_Category('root', 'rootNode');
+		$tree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
+		$this->assertTrue(is_a($tree, Tx_Yag_Domain_Model_CategoryTree));
+		$this->assertEquals($tree->getRoot()->getLft(), 1);
+		$this->assertEquals($tree->getRoot()->getRgt(), 2);
+	}
+	
+	
+	
+	/** @test */
 	public function createCategoryTreeReturnsEmptyTree() {
-		$emptyTree = new Tx_Yag_Domain_Model_CategoryTree();
+		$emptyTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode(null);
 		$this->assertEquals($emptyTree->getRoot(), null);
 	}
 	
@@ -51,7 +62,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
 	/** @test */
 	public function creatingNewCategoryTreeWithRootNodeSetsRootNode() {
 		$rootNode = new Tx_Yag_Domain_Model_Category('root', 'rootNode');
-		$categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+		$categoryTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
 		$this->assertEquals($categoryTree->getRoot(), $rootNode);
 	}
 	
@@ -61,7 +72,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
 	public function creatingNewCategoryTreeWithRootNodeAddsRootNodeToNodeMap() {
 	    $nodeMock = new Tx_Yag_Tests_Domain_Model_CategoryMock();
 	    $nodeMock->setUid(1234);
-		$categoryTree = new Tx_Yag_Domain_Model_CategoryTree($nodeMock);
+		$categoryTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($nodeMock);
 		$this->assertEquals($categoryTree->getNodeByUid(1234), $nodeMock);
 	}
 	
@@ -78,7 +89,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
 		$firstChild->addChild($thirdChild);
 		$rootNode->addChild($firstChild);
 		
-		$categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+		$categoryTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
 		$this->assertEquals($categoryTree->getRoot(), $rootNode);
 		$this->assertEquals($categoryTree->getNodeByUid(1), $rootNode);
 		$this->assertEquals($categoryTree->getNodeByUid(2), $firstChild);
@@ -99,7 +110,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
         $firstChild->addChild($thirdChild);
         $rootNode->addChild($firstChild);
         
-        $categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+        $categoryTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
         
         $categoryTree->deleteNode($firstChild);
         
@@ -127,7 +138,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
         $firstChild->addChild($thirdChild);
         $rootNode->addChild($firstChild);
         
-        $categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+        $categoryTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
         
         var_dump('Before move: ' . $categoryTree->toString());
         
@@ -155,7 +166,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
         $firstChild->addChild($thirdChild);
         $rootNode->addChild($firstChild);
                 
-        $categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+        $categoryTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
         
         var_dump('Before move: ' . $categoryTree->toString());
         
@@ -185,7 +196,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
         $firstChild->addChild($thirdChild);
         $rootNode->addChild($firstChild);
         
-        $categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+        $categoryTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
         
         var_dump('Before move: ' . $categoryTree->toString());
         
@@ -215,7 +226,7 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
         $firstChild->addChild($thirdChild);
         $rootNode->addChild($firstChild);
         
-        $categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+        $categoryTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
         
 		$newNode = new Tx_Yag_Domain_Model_Category('test', 'test');
 		
@@ -223,6 +234,41 @@ class Tx_Yag_Tests_Domain_Model_CategoryTreeTest extends Tx_Yag_Tests_BaseTestCa
 		
 		$this->assertEquals($newNode->getParent(), $rootNode);
 		$this->assertTrue($rootNode->getChildren()->contains($newNode));
+	}
+	
+	
+	
+	/** @test */
+	public function insertingNodeAddsInsertedNodeToListOfAddedNodes() {
+		$rootNode = new Tx_Yag_Tests_Domain_Model_CategoryMock(1);
+		$nodeToBeAdded = new Tx_Yag_Tests_Domain_Model_CategoryMock(2);
+		$categoryTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
+		$categoryTree->insertNode($nodeToBeAdded, $rootNode);
+		
+		$this->assertTrue(in_array($nodeToBeAdded, $categoryTree->getAddedNodes()));
+	}
+	
+	
+	
+	/** @test */
+	public function deletingNodeFromTreeAddsDeletedNodesToListOfDeletedNodes() {
+		$rootNode = new Tx_Yag_Tests_Domain_Model_CategoryMock(1);
+        $firstChild = new Tx_Yag_Tests_Domain_Model_CategoryMock(2);
+        $secondChild = new Tx_Yag_Tests_Domain_Model_CategoryMock(3);
+        $thirdChild = new Tx_Yag_Tests_Domain_Model_CategoryMock(4);
+        $fourthChild = new Tx_Yag_Tests_Domain_Model_CategoryMock(5);
+        
+        $thirdChild->addChild($fourthChild);
+        $firstChild->addChild($secondChild);
+        $firstChild->addChild($thirdChild);
+        $rootNode->addChild($firstChild);
+        
+        $categoryTree = Tx_Yag_Domain_Model_CategoryTree::getInstanceByRootNode($rootNode);
+        
+        $categoryTree->deleteNode($thirdChild);
+        
+        $this->assertTrue(in_array($thirdChild, $categoryTree->getDeletedNodes()));
+        $this->assertTrue(in_array($fourthChild, $categoryTree->getDeletedNodes()));
 	}
 	
 }

@@ -30,96 +30,36 @@
  * @subpackage Repository
  * @author Michael Knoll <mimi@kaktusteam.de>
  */
-class Tx_Yag_Domain_Repository_CategoryRepository extends Tx_Yag_Domain_Repository_AbstractRepository {
-
+class Tx_Yag_Domain_Repository_CategoryRepository
+    extends Tx_Yag_Domain_Repository_AbstractRepository 
+    implements Tx_Yag_Domain_Model_NodeRepositoryInterface { 
+	
+	
+	
 	/**
-	 * Adds a category (and all sub categories) to repository
+	 * Returns a set of categories determined by the root of the given node.
 	 *
-	 * @param Tx_Yag_Domain_Model_Category $category
+	 * @param Tx_Yag_Domain_Model_NodeInterface $category
+	 * @return Tx_Extbase_Persistence_ObjectStorage<Tx_Yag_Domain_Model_Category>
 	 */
-	public function add($category) {
-		$categoriesToAdd = new Tx_Extbase_Persistence_ObjectStorage();
-		$categoriesToAdd->attach($category);
-		$categoriesToAdd->addAll($category->getSubCategories());
-		
-		foreach($categoriesToAdd as $categoryToPersist) {
-			if ($categoryToPersist->_isNew()) {
-				parent::add($categoryToPersist); 
-			} else {
-				parent::update($categoryToPersist);
-			}
-		}
+	public function findByRootOfGivenNodeUid(Tx_Yag_Domain_Model_NodeInterface $category) {
+		$rootUid = $category->getRoot();
+		return $this->findByRootUid($rootUid);
 	}
 	
 	
 	
 	/**
-	 * Returns a category (and its sub-categories) for a given category uid
+	 * Returns a set of categories determined by uid of root node
 	 *
-	 * @param int $uid
-	 * @return Tx_Yag_Domain_Model_Category
+	 * @param int $rootUid
+	 * @return Tx_Extbase_Persistence_ObjectStorage<Tx_Yag_Domain_Model_Category>
 	 */
-	public function findByUid($uid) {
-		$rootCategory = parent::findByUid($uid);
-		$childCategories = new Tx_Extbase_Persistence_ObjectStorage();
-		
-		foreach($this->findChildCategoriesByRootCategory($rootCategory) as $childCategory) {
-			$childCategories->attach($childCategory);
-		}
-		
-        $this->buildUpCategoryTree($rootCategory, $childCategories);
-        return $rootCategory;
-	}
-	
-	
-	
-	/**
-	 * We build up a category tree recursively.
-	 *
-	 * @param Tx_Yag_Domain_Model_Category $root
-	 * @param Tx_Extbase_Persistence_ObjectStorage $children
-	 * @return unknown
-	 */
-	protected function buildUpCategoryTree(Tx_Yag_Domain_Model_Category $root, $children) {
-		foreach ($children as $child) { /* @var $child Tx_Yag_Domain_Model_Category */
-
-			if ($child->getRgt() < $root->getRgt()) {
-				/* Current child must be child of current root - so we add it */
-                $root->addChild($child, false);
-                $children->detach($child);
-                if ($child->getLft() + 1 == $child->getRgt()) {
-                	/* Current child is a leaf. So we added it to root as a child and go on with possible next child */
-                	$this->buildUpCategoryTree($root, $children);
-                } else {
-                	/* Current child is not a leaf. So we added it to root as a child and move down the tree */
-                	$this->buildUpCategoryTree($child, $children); 
-                }
-			} else {
-				/* Current child does not belong to current root. So we move up the tree */
-				$this->buildUpCategoryTree($root->getParent(), $children);    
-			}
-		}
-	}
-	
-	
-	
-	/**
-	 * Returns a flat list of child categories for a given category
-	 *
-	 * @param Tx_Yag_Domain_Model_Category $rootCategory
-	 * @return Tx_Extbase_Persistence_ObjectStorage
-	 */
-	public function findChildCategoriesByRootCategory(Tx_Yag_Domain_Model_Category $rootCategory) {
+	public function findByRootUid($rootUid) {
 		$query = $this->createQuery();
-		$query->matching(
-		    $query->logicalAnd(
-		        $query->logicalAnd(
-		            $query->greaterThan('lft', $rootCategory->getLft()),$query->lessThan('rgt', $rootCategory->getRgt())),
-		            $query->equals('root', $rootCategory->getRoot())
-		        )
-		    );
-		$query->setOrderings(array('lft' => Tx_Extbase_Persistence_Query::ORDER_ASCENDING));
-		return $query->execute()->toArray();
+        $query->matching($query->equals('root', $rootUid))
+            ->setOrderings(array('lft' => Tx_Extbase_Persistence_Query::ORDER_DESCENDING));
+        return $query->execute();
 	}
 	
 	
@@ -196,21 +136,6 @@ class Tx_Yag_Domain_Repository_CategoryRepository extends Tx_Yag_Domain_Reposito
         $extQuery = $this->createQuery();
         $extQuery->getQuerySettings()->setReturnRawQueryResult(true); // Extbase WTF
         $extQuery->statement($query)->execute();
-	}
-	
-	
-	
-	/**
-	 * Updates whole tree for any given category
-	 *
-	 * @param Tx_Yag_Domain_Model_Category $category Category whose tree should be updated
-	 */
-	public function updateTree(Tx_Yag_Domain_Model_Category $category) {
-		$root = $this->findByUid($category->getRoot());
-		$allCategoriesOfTree = $root->getSubCategories();
-		foreach($allCategoriesOfTree as $categoryToBeUpdated) {
-			$this->update($categoryToBeUpdated);
-		}
 	}
 	
 }

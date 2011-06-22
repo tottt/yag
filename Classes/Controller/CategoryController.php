@@ -101,17 +101,12 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	
 	
 	/**
-	 * Get trees under the given tree
+	 * Get subtree for node ID given by GP vars
 	 */
 	public function getSubTreeAction() {
-		
-		$node = t3lib_div::_GP('node');
-		
-		$category = $this->categoryRepository->findByUid($node);
-		
+		$categoryTree = $this->categoryTreeRepository->findByCategoryId(intval(t3lib_div::_GP('node')));
 		$childCategoryArray = array();
-		
-		foreach($category->getChildren() as $childCategory) { /* @var $childCategory Tx_Yag_Domain_Model_Category */
+		foreach($categoryTree->getNodeByUid(intval(t3lib_div::_GP('node')))->getChildren() as $childCategory) { /* @var $childCategory Tx_Yag_Domain_Model_Category */
 			$childCategoryArray[] = array(
 				'id' => $childCategory->getUid(),
 				'text' => $childCategory->getName(),
@@ -120,7 +115,6 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 			);
 
 		}
-		
 		return json_encode($childCategoryArray);
 	}
 
@@ -137,7 +131,7 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 		$category->setName($categoryTitle);
 		$category->setDescription($categoryDescription);
 		$this->categoryRepository->update($category);
-		$this->objectManager->get('Tx_Extbase_Persistence_Manager')->persistAll();
+		$this->persistenceManager->persistAll();
 	}
 	
 	
@@ -151,14 +145,8 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 */
 	public function addNewCategoryAction($parentNodeId, $nodeTitle, $nodeDescription = '') {
 		$parentNode = $this->categoryRepository->findByUid($parentNodeId);
-		$rootNode = $this->categoryRepository->findByUid($parentNode->getRoot());
-		
 		$newNode = new Tx_Yag_Domain_Model_Category($nodeTitle, $nodeDescription);
-		$newNode->setRoot($parentNode->getRoot());
-		$this->categoryRepository->add($newNode);
-		$this->persistenceManager->persistAll();
-		
-		$categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+		$categoryTree = $this->categoryTreeRepository->findByRootId($parentNode->getRoot());
 		$categoryTree->insertNode($newNode, $parentNode);
 		$this->categoryTreeRepository->update($categoryTree);
 		$this->persistenceManager->persistAll();
@@ -177,7 +165,13 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 * @dontvalidate
 	 */
 	public function addCategoryAction($parentNodeId, $nodeTitle='', $nodeDescription='') {
+		
+		
+		
         // this is currently not working, use addNewCategoryAction or fix this (action is not called from debug form - dunno why)
+		
+		// TODO replace whole code here by functionality of "addNewCategoryAction"!
+		
 		$parentCategory = $this->categoryRepository->findByUid($parentNodeId);
 		if($parentCategory !== NULL) {
 			$newCategory = new Tx_Yag_Domain_Model_Category();
@@ -205,18 +199,12 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 	 */
 	public function removeCategoryAction($nodeId) {
 		$nodeToBeRemoved = $this->categoryRepository->findByUid($nodeId);
-		$rootNode = $this->categoryRepository->findByUid($nodeToBeRemoved->getRoot());
-		$categoryTree = new Tx_Yag_Domain_Model_CategoryTree($rootNode);
+		$categoryTree = $this->categoryTreeRepository->findByRootId($nodeToBeRemoved->getRoot());
 		$categoryTree->deleteNode($nodeToBeRemoved);
-		$this->categoryRepository->remove($nodeToBeRemoved);
 		$this->categoryTreeRepository->update($categoryTree);
 		$this->persistenceManager->persistAll();
-		/*
-		$categoryToDelete = $this->categoryRepository->findByUid($nodeId);
-		// Wie werden Kategorien gelöscht? --> so:
-		$this->categoryRepository->remove($categoryToDelete);
-		$this->persistenceManager->persistAll();
-        */
+		
+		$this->forward('debug');
 	}
 	
 	
@@ -237,6 +225,8 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 		$categoryTree->moveNode($categoryToBeMoved, $targetNode);
 		$this->categoryTreeRepository->update($categoryTree);
 		$this->persistenceManager->persistAll();
+		
+		$this->forward('debug');
 	}
 	
 	
@@ -255,6 +245,8 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
 		$categoryTree->moveNodeAfterNode($categoryToBeMoved, $targetNode);
 		$this->categoryTreeRepository->update($categoryTree);
 		$this->persistenceManager->persistAll();
+		
+		$this->forward('debug');
 	}
 	
 	
@@ -273,6 +265,8 @@ class Tx_Yag_Controller_CategoryController extends Tx_Yag_Controller_AbstractCon
         $categoryTree->moveNodeBeforeNode($categoryToBeMoved, $targetNode);
         $this->categoryTreeRepository->update($categoryTree);
         $this->persistenceManager->persistAll();
+        
+        $this->forward('debug');
 	}
 	
 }
