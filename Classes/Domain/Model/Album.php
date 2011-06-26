@@ -417,7 +417,7 @@ class Tx_Yag_Domain_Model_Album extends Tx_Extbase_DomainObject_AbstractEntity {
      * @return Tx_Yag_Domain_Model_Category 
      */
     public function getCategory() {
-        	return $this->category;
+        return $this->category;
     }
     
     
