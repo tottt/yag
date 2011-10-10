@@ -129,6 +129,14 @@ class Tx_Yag_Domain_Model_Album extends Tx_Extbase_DomainObject_AbstractEntity {
     protected $sorting;
     
     
+    
+    /**
+     * author
+     *
+     * @var string $author
+     */
+    protected $author;
+    
 
     /**
      * The constructor.
@@ -167,6 +175,26 @@ class Tx_Yag_Domain_Model_Album extends Tx_Extbase_DomainObject_AbstractEntity {
         $this->name = $name;
     }
     
+    
+    /**
+     * Setter for author
+     *
+     * @param string $author Autor of album
+     * @return void
+     */
+    public function setAuthor($author) {
+        $this->author = $author;
+    }
+    
+
+    /**
+     * Getter for author
+     *
+     * @return string Author of item
+     */
+    public function getAuthor() {
+        return $this->author;
+    }
     
 
     /**
